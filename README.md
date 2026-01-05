@@ -17,7 +17,8 @@ A organização do projeto segue as melhores práticas de desenvolvimento para g
 
 ***1. Clonar o Repositório***
 
-git clone https://github.com/juaozito/api-mercado-local.git***
+git clone https://github.com/juaozito/api-mercado-local.git
+
 cd api-mercado-local/app
 
 ***3. Configurar Ambiente Virtual (Recomendado)Bash# Criar o ambiente***
