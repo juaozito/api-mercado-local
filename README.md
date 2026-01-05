@@ -25,11 +25,13 @@ git clone https://github.com/juaozito/api-mercado-local.git
 cd api-mercado-local/app
 
 # 2. Configurar Ambiente Virtual (Recomendado)
+
 ***Criar o ambiente***
 
 python -m venv venv
 
 # Ativar no Windows:
+
 venv\Scripts\activate
 
 # 3. Instalar DependênciasBashpip install -r requirements.txt
@@ -37,9 +39,13 @@ venv\Scripts\activate
 ***🛠️ Roadmap de Funcionalidades***
 
 ***[x]Configuração Inicial:*** Estrutura de pastas e integração com Git.
+
 ***[ ] Módulo de Produtos:*** Implementação completa do CRUD.
+
 ***[ ] Categorias:*** Organização e filtragem do mercado.
+
 ***[ ] Estoque:*** Controle de inventário e movimentação.
+
 
 ***✒️ Desenvolvedores Contribuintes que fazem parte deste projeto:*** 
 
