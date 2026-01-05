@@ -9,8 +9,11 @@ Uma solução robusta desenvolvida em Python voltada para a gestão de marketpla
 A organização do projeto segue as melhores práticas de desenvolvimento para garantir escalabilidade:
 
 ***📂 /app: Núcleo da aplicação com todo o código-fonte.***
+
 ***📄 .gitignore: Configurado para proteger o repositório de arquivos temporários e ambientes virtuais.***
+
 ***📖 README.md: Guia principal e documentação do projeto.***
+
 ***🚀 Tecnologias UtilizadasTecnologiaDescriçãoPython 3.xLinguagem principal do backendGit & GitHubControle de versionamento e hospedagemVirtualenv (venv)Isolamento de ambiente e dependências***
 
 # 🔧 Instalação e Execução
