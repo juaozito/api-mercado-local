@@ -21,7 +21,9 @@ git clone https://github.com/juaozito/api-mercado-local.git
 
 cd api-mercado-local/app
 
-***3. Configurar Ambiente Virtual (Recomendado)Bash# Criar o ambiente***
+# 2. Configurar Ambiente Virtual (Recomendado)
+***Criar o ambiente***
+
 python -m venv venv
 
 # Ativar no Windows:
