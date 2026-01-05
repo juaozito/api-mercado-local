@@ -26,9 +26,8 @@ cd api-mercado-local/app
 
 ***2. Configurar Ambiente Virtual (Recomendado)***
 
-***Criar o ambiente***
-
-python -m venv venv
+***Criar o ambiente:***
+ python -m venv venv
 
 ***3. Ativar no Windows:***
 
