@@ -1,0 +1,6 @@
+# Ignorar o arquivo do banco de dados local
+mercado.db
+# Ignorar pastas de ambiente virtual e cache
+__pycache__/
+venv/
+.env
