@@ -27,4 +27,15 @@ python -m venv venv
 venv\Scripts\activate
 
 # 3. Instalar DependênciasBashpip install -r requirements.txt
-***🛠️ Roadmap de Funcionalidades[x] Configuração Inicial:*** Estrutura de pastas e integração com Git.[ ] Módulo de Produtos: Implementação completa do CRUD.[ ] Categorias: Organização e filtragem do mercado.[ ] Estoque: Controle de inventário e movimentação.✒️ DesenvolvedoresContribuintes que fazem parte deste projeto:João Lucas — GitHub: juaozitoJoão Neto — [GitHub: (Insira o Link Aqui)]
+
+***🛠️ Roadmap de Funcionalidades***
+
+***[x]Configuração Inicial:*** Estrutura de pastas e integração com Git.
+***[ ] Módulo de Produtos:*** Implementação completa do CRUD.
+***[ ] Categorias:*** Organização e filtragem do mercado.
+***[ ] Estoque:*** Controle de inventário e movimentação.
+
+***✒️ Desenvolvedores Contribuintes que fazem parte deste projeto:*** 
+
+João Lucas — GitHub: juaozito
+João Neto —  GitHub: 
