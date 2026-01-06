@@ -49,4 +49,5 @@ venv\Scripts\activate
 ***✒️ Desenvolvedores Contribuintes que fazem parte deste projeto:*** 
 
 João Lucas — GitHub: juaozito
+
 João Neto —  GitHub: 
