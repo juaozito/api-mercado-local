@@ -33,7 +33,9 @@ cd api-mercado-local/app
 
 venv\Scripts\activate
 
-# 3. Instalar DependênciasBashpip install -r requirements.txt
+# 3. Instalar Dependências
+
+pip install -r requirements.txt
 
 ***🛠️ Roadmap de Funcionalidades***
 
