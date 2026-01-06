@@ -1,6 +1,6 @@
 # 🛒 Marketplace API — Mercado Local
 
-Status do Projeto: 🛠️ Em Andamento
+***Status do Projeto: 🛠️ Em Andamento***
 
 Uma solução robusta desenvolvida em Python voltada para a gestão de marketplaces locais. O projeto foi arquitetado para otimizar o fluxo de produtos e controle de estoque, promovendo uma integração fluida entre vendedores e consumidores.
 
