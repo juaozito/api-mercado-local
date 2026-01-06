@@ -35,7 +35,8 @@ venv\Scripts\activate
 
 # 3. Instalar Dependências
 
-pip install -r requirements.txt
+
+***pip install -r requirements.txt***
 
 ***🛠️ Roadmap de Funcionalidades***
 
