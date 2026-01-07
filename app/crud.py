@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
+import random
 
 # ---------------------------------------------------------
 # BLOCO 1: CRIAÇÃO
@@ -10,7 +11,9 @@ def create_projeto(db: Session, projeto: schemas.ProjetoCreate):
     db_projeto = models.Projeto(
         titulo=projeto.titulo,
         valor=projeto.valor,
-        cliente_id=projeto.cliente_id
+        cliente_id=projeto.cliente_id,
+        vendedor_id=projeto.vendedor_id, #adicionado conforme o novo models
+        conteudo_digital=projeto.conteudo_digital # O "produto" travado
     )
     db.add(db_projeto)
     db.commit()
@@ -61,10 +64,42 @@ def delete_projeto(db: Session, projeto_id: int):
 def depositar_pagamento(db: Session, projeto_id: int):
     """Gerencia a lógica de retenção de pagamento (Escrow)"""
     projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
-    if projeto and projeto.status == models.StatusProjeto.ABERTO:
+    
+    if projeto:
+        # Gerar código novo (estamos garantindo 6 dígitos com zfill)
+        codigo_novo = str(random.randint(0, 999999)).zfill(6)
+
         projeto.valor_no_escrow = projeto.valor
+        projeto.codigo_verificacao = codigo_novo
         projeto.status = models.StatusProjeto.PAGAMENTO_RETIDO
+
+        db.commit()
+        db.refresh(projeto)
+        
+        # ESSA LINHA É FUNDAMENTAL: Ela vai berrar o código no seu terminal
+        print(f"\n Use este código no Thunder Client: {codigo_novo} \n")
+        
+        return projeto
+    return Nonejeto
+    return None
+
+def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo_inserido: str):
+    """
+    O 'Gatilho': Compara o código inserido pelo comprador.
+    Se correto, libera o conteúdo digital e finaliza o Escrow.
+    """
+    projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
+
+    if not projeto or projeto.status != models.StatusProjeto.PAGAMENTO_RETIDO:
+        return {"error": "Projeto não está em fase de liberação."}
+    
+    # CONFERÊNCIA DO CÓDIGO
+    if projeto.codigo_verificacao == codigo_inserido:
+        # Sucessor: Libera o dinheiro e finaliza
+        projeto.status = models.StatusProjeto.FINALIZADO
+        # Aqui o valor_no_escrow é liberado logicamente para o vendedor
         db.commit()
         db.refresh(projeto)
         return projeto
-    return None
+    
+    return None # Código incorreto
