@@ -49,8 +49,7 @@ venv\Scripts\activate
 ***[ ] Estoque:*** Controle de inventário e movimentação.
 
 
-***✒️ Desenvolvedores Contribuintes que fazem parte deste projeto:*** 
+***✒️ Desenvolvedor***
 
 João Lucas — GitHub: juaozito
 
-João Neto —  GitHub: 
