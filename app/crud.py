@@ -103,3 +103,18 @@ def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo_inserido: str
         return projeto
     
     return None # Código incorreto
+
+def contar_vendas_vendedor(db: Session, vendedor_id: int):
+    #Conta apenas os projetos com status FINALIZADO (venda concluída)
+    return db.query(models.Projeto).filter(
+        models.Projeto.vendedor_id == vendedor_id,
+        models.Projeto.status == models.StatusProjeto.FINALIZADO
+    ).count()
+
+# Corrija de 'get_compras_cciente' para:
+def get_compras_cliente(db: Session, cliente_id: int):
+    return db.query(models.Projeto).filter(
+        models.Projeto.cliente_id == cliente_id,
+        models.Projeto.status == models.StatusProjeto.FINALIZADO
+    ).all()
+

@@ -8,6 +8,22 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# MENSAGEM STATUS
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    print("\n" + "="*40)
+    print("PROJETO MERCADO LOCAL ESCROW ATIVO")
+    print("="*40 + "\n")
+
+@app.get("/")
+def read_root():
+    return {"status": "Online", "projeto": "Mercado Local Escrow"}
+
 # --- BLOCO 1: CRIAÇÃO ---
 
 @app.post("/projetos/", response_model=schemas.Projeto)
@@ -83,3 +99,16 @@ def validar_codigo_entrega(projeto_id: int, dados: schemas.ValidarCodigo, db: Se
         raise HTTPException(status_code=400, detail="Código incorreto ou projeto inválido.")
 
     return projeto
+
+# LINHA DE CONTAGEM
+
+@app.get("/vendedor/{vendedor_id}/total-vendas")
+def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
+    total = crud.contar_vendas_vendedor(db, vendedor_id)
+    return {"vendedor_id": vendedor_id, "total_vendas_concluidas": total}
+
+@app.get("/cliente/{cliente_id}/meus-cursos")
+def listar_meus_cursos(cliente_id: int, db: Session = Depends(get_db)):
+    # Certifique-se que aqui está escrito 'cliente' com um 'c' só
+    compras = crud.get_compras_cliente(db, cliente_id)
+    return compras
