@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mercado Escrow</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>Olá, <span id="nome-usuario">Usuário</span>!</h1>
+        <button class="logout" onclick="logout()">Sair do Sistema</button>
+    </header>
+    
+    <div class="stats-grid">
+        <div class="card">
+            <p>Vendas Concluídas</p>
+            <h3 id="total-vendas">0</h3>
+        </div>
+        <div class="card">
+            <p>Saldo em Escrow (Seguro)</p>
+            <h3 id="saldo-escrow">R$ 0,00</h3>
+        </div>
+    </div>
+
+    <h2>Meus Projetos / Compras</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Projeto</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ação/Conteúdo</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-projetos">
+            </tbody>
+    </table>
+</div>
+
+<script src="../js/dashboard.js"></script>
+</body>
+</html>
+
+<button onclick="window.location.href='anunciar.html'">+ Anunciar Novo Serviço</button>
+
+<nav style="background: #333; padding: 15px; display: flex; justify-content: center; gap: 20px; width: 100%; box-sizing: border-box;">
+    <a href="loja.html" style="color: white; text-decoration: none; font-weight: bold;">🛒 Ir para a Loja</a>
+    <a href="dashboard.html" style="color: white; text-decoration: none; font-weight: bold;">📊 Meu Painel (Vendas)</a>
+    <a href="meus_cursos.html" style="color: white; text-decoration: none; font-weight: bold;">📚 Meus Cursos (Comprados)</a>
+    <a href="#" onclick="logout()" style="color: #ff4757; text-decoration: none; font-weight: bold; margin-left: 50px;">Sair</a>
+</nav>

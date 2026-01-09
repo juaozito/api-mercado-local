@@ -1,6 +1,12 @@
-# Ignorar o arquivo do banco de dados local
-
-# Ignorar pastas de ambiente virtual e cache
+# Python
 __pycache__/
+*.py[cod]
 venv/
 .env
+
+# Banco de Dados local
+*.db
+
+# IDEs
+.vscode/
+.idea/

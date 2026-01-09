@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Mercado Escrow</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="login-container" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 350px;">
+        <h2 style="text-align: center;">Criar Conta</h2>
+        <div style="margin-bottom: 15px;">
+            <label>Nome Completo</label>
+            <input type="text" id="nome" style="width: 100%; padding: 10px;" placeholder="Seu nome">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>E-mail</label>
+            <input type="email" id="email" style="width: 100%; padding: 10px;" placeholder="seu@email.com">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Senha</label>
+            <input type="password" id="senha" style="width: 100%; padding: 10px;" placeholder="******">
+        </div>
+        <button onclick="cadastrar()" style="width: 100%; padding: 12px; background: #42b72a; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cadastrar</button>
+        <p style="text-align: center; margin-top: 15px;">
+            <a href="login.html" style="text-decoration: none; color: #1877f2;">Já tem conta? Faça login</a>
+        </p>
+        <p id="mensagem" style="text-align: center; margin-top: 10px;"></p>
+    </div>
+</div>
+<script src="../js/cadastro.js"></script>
+</body>
+</html>

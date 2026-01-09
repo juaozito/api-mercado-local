@@ -3,6 +3,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 # IMPORTANTE: Importamos as configurações que você criou
 from .config import settings
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+db_path = os.path.join(BASE_DIR, "mercado.db")
 
 # 1. DEFINIÇÃO DO BANCO (SQLITE)
 # Em vez de escrever o texto aqui, usamos o que está no settings.

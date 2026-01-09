@@ -1,0 +1,128 @@
+/* =========================================================
+   BLOCO 1: CONFIGURAÇÕES GERAIS (BODY & CONTAINER)
+   ========================================================= */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6; /* Tom de cinza muito claro, cansa menos a vista */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* O Container centraliza o conteúdo e dá o efeito de "folha de papel" */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin-top: 50px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Sombra suave para dar profundidade */
+}
+
+h1, h2 { 
+    color: #333; 
+}
+
+/* =========================================================
+   BLOCO 2: DASHBOARD - CARTÕES DE ESTATÍSTICAS
+   ========================================================= */
+/* Grade que organiza os cards (Total de Vendas, Saldo, etc) lateralmente */
+.stats-grid {
+    display: grid;
+    /* Ajusta automaticamente a quantidade de colunas conforme o tamanho da tela */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #eef2f3;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #dcdde1;
+}
+
+/* Destaque para os números dentro dos cards */
+.card h3 { 
+    margin: 0; 
+    color: #007bff; /* Azul padrão para números importantes */
+    font-size: 28px; 
+}
+
+/* =========================================================
+   BLOCO 3: TABELAS DE DADOS (CURSOS E VENDAS)
+   ========================================================= */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Remove espaços duplos entre as bordas */
+    margin-top: 20px;
+}
+
+table th {
+    background-color: #f8f9fa;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+table th, table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Efeito de destaque ao passar o mouse na linha da tabela */
+table tr:hover {
+    background-color: #f1f2f6;
+}
+
+/* =========================================================
+   BLOCO 4: STATUS E CORES DINÂMICAS
+   ========================================================= */
+/* Classes aplicadas via JavaScript dependendo do status do projeto */
+.status-finalizado { 
+    color: #2ecc71; /* Verde */
+    font-weight: bold; 
+}
+
+.status-pendente { 
+    color: #f39c12; /* Laranja/Amarelo */
+    font-weight: bold; 
+}
+
+.status-aberto { 
+    color: #3498db; /* Azul */
+    font-weight: bold; 
+}
+
+/* =========================================================
+   BLOCO 5: BOTÕES E INTERAÇÃO
+   ========================================================= */
+button.logout {
+    background: #ff4757; /* Vermelho vibrante */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+    transition: background 0.3s;
+}
+
+button.logout:hover {
+    background: #e84118; /* Vermelho mais escuro no hover */
+}
+
+/* Ajuste para links dentro da tabela (Acessar Conteúdo) */
+table a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+table a:hover {
+    text-decoration: underline;
+}
