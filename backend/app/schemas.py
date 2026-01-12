@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, List
 
+class ValidarCodigo(BaseModel):
+    codigo: str
 # =========================================================
 # BLOCO 1: ENUMERAÇÕES (OPÇÕES FIXAS)
 # =========================================================

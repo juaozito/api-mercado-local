@@ -1,46 +1,58 @@
 import bcrypt
+from jose import jwt
+from datetime import datetime, timedelta
+from .config import settings
 
 # =========================================================
-# BLOCO 1: PROTEÇÃO DE DADOS (HASHING)
+# BLOCO 1: SEGURANÇA DE SENHAS (BCRYPT)
 # =========================================================
 
 def gerar_senha_hash(senha: str) -> str:
     """
-    Transforma uma senha comum (ex: '123456') em um hash 
-    irreversível para armazenamento seguro no banco de dados.
+    Transforma uma senha de texto puro em um hash seguro.
+    O hash inclui um 'salt' aleatório para evitar ataques de força bruta.
     """
-    
-    # 1. Converte a string da senha para bytes (necessário para o bcrypt)
     senha_bytes = senha.encode('utf-8')
-    
-    # 2. Gera um 'Salt' (um tempero aleatório)
-    # Isso impede que duas senhas iguais tenham o mesmo hash final.
     salt = bcrypt.gensalt()
-    
-    # 3. Gera o hash final misturando a senha com o salt
     hash_bytes = bcrypt.hashpw(senha_bytes, salt)
-    
-    # 4. Retorna o hash como string (formato compatível com o SQLite)
     return hash_bytes.decode('utf-8')
-
-
-# =========================================================
-# BLOCO 2: CONFERÊNCIA DE ACESSO (VERIFICAÇÃO)
-# =========================================================
 
 def verificar_senha(senha_pura: str, senha_hash: str) -> bool:
     """
-    Compara a senha que o usuário digitou no login com o hash 
-    que está guardado no banco de dados.
+    Compara a senha digitada pelo usuário com o hash salvo no banco.
+    Retorna True se for compatível, False caso contrário.
     """
     try:
-        # O bcrypt.checkpw faz o trabalho pesado:
-        # Ele extrai o salt do hash antigo e aplica na senha nova para comparar.
         return bcrypt.checkpw(
             senha_pura.encode('utf-8'), 
             senha_hash.encode('utf-8')
         )
-    except Exception as e:
-        # Se houver erro de formato ou dados corrompidos, nega o acesso.
-        print(f"Erro na verificação de segurança: {e}")
+    except Exception:
+        # Se o hash estiver malformado ou houver erro, nega o acesso
         return False
+
+# =========================================================
+# BLOCO 2: AUTENTICAÇÃO VIA JWT (JSON WEB TOKEN)
+# =========================================================
+
+def criar_token_acesso(dados: dict) -> str:
+    """
+    Gera um token JWT para manter o usuário logado.
+    O token contém o ID do usuário e uma data de expiração.
+    """
+    dados_token = dados.copy()
+    
+    # Define por quanto tempo o token será válido (configurado no config.py)
+    tempo_expiracao = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    # Adiciona a claim 'exp' (expiration) ao corpo do token
+    dados_token.update({"exp": tempo_expiracao})
+    
+    # Assina o token com a sua SECRET_KEY
+    token_jwt = jwt.encode(
+        dados_token, 
+        settings.SECRET_KEY, 
+        algorithm=settings.ALGORITHM
+    )
+    
+    return token_jwt

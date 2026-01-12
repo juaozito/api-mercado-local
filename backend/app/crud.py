@@ -7,11 +7,15 @@ import random
 # =========================================================
 
 def get_usuario_by_email(db: Session, email: str):
-    """Busca um usuário pelo e-mail para verificar login ou duplicidade."""
+    """Busca um usuário pelo e-mail (usado no login e validação)."""
     return db.query(models.Usuario).filter(models.Usuario.email == email).first()
 
+def get_usuario_by_id(db: Session, usuario_id: int):
+    """Busca um usuário pelo ID único."""
+    return db.query(models.Usuario).filter(models.Usuario.id == usuario_id).first()
+
 def create_usuario(db: Session, usuario: schemas.UsuarioCreate):
-    """Cria um novo usuário com senha criptografada."""
+    """Cria um novo usuário criptografando a senha antes de salvar."""
     senha_protegida = security.gerar_senha_hash(usuario.senha)
     db_usuario = models.Usuario(
         nome=usuario.nome,
@@ -25,18 +29,18 @@ def create_usuario(db: Session, usuario: schemas.UsuarioCreate):
 
 
 # =========================================================
-# BLOCO 2: CRIAÇÃO E CONSULTA DE PROJETOS (ANÚNCIOS)
+# BLOCO 2: GESTÃO DE ANÚNCIOS (PROJETOS)
 # =========================================================
 
 def create_projeto(db: Session, projeto: schemas.ProjetoCreate):
-    """Transforma os dados do formulário de anúncio em um registro no banco."""
+    """Cria um novo anúncio de conteúdo digital."""
     db_projeto = models.Projeto(
         titulo=projeto.titulo,
         valor=projeto.valor,
         vendedor_id=projeto.vendedor_id,
         conteudo_digital=projeto.conteudo_digital,
-        cliente_id=None,  # Começa sem comprador
-        status=models.StatusProjeto.ABERTO  # Status inicial: Aberto
+        cliente_id=None,
+        status=models.StatusProjeto.ABERTO
     )
     db.add(db_projeto)
     db.commit()
@@ -44,72 +48,71 @@ def create_projeto(db: Session, projeto: schemas.ProjetoCreate):
     return db_projeto
 
 def get_projetos(db: Session, skip: int = 0, limit: int = 100):
-    """Lista todos os projetos disponíveis no mercado."""
+    """Lista todos os anúncios ativos no marketplace."""
     return db.query(models.Projeto).offset(skip).limit(limit).all()
 
 def get_projeto(db: Session, projeto_id: int):
-    """Busca um projeto específico pelo seu ID único."""
+    """Busca os detalhes de um projeto específico."""
     return db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
 
 def get_projetos_vendedor(db: Session, vendedor_id: int):
-    """Busca todos os anúncios criados por um vendedor específico."""
+    """Lista todos os anúncios criados por um vendedor específico."""
     return db.query(models.Projeto).filter(models.Projeto.vendedor_id == vendedor_id).all()
 
+
+# =========================================================
+# BLOCO 3: SISTEMA DE ESCROW (FLUXO DE VENDA)
+# =========================================================
+
+def depositar_pagamento(db: Session, projeto_id: int, cliente_id: int):
+    """
+    Inicia o processo de Escrow:
+    1. Vincula o comprador ao projeto.
+    2. Altera status para 'pagamento_retido'.
+    3. Gera o código de 6 dígitos que o vendedor deve fornecer ao comprador.
+    """
+    projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
+    if projeto:
+        projeto.status = models.StatusProjeto.PAGAMENTO_RETIDO
+        projeto.cliente_id = cliente_id 
+        
+        # Gera o código de segurança para a liberação futura
+        projeto.codigo_verificacao = str(random.randint(100000, 999999))
+        
+        db.commit()
+        db.refresh(projeto)
+        return projeto
+    return None
+
+def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo: str):
+    """
+    Finaliza a transação:
+    Conferindo o código, o status vira 'finalizado', o dinheiro é 'liberado' 
+    e o curso aparece na biblioteca do comprador.
+    """
+    projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
+    
+    if projeto and projeto.codigo_verificacao == codigo:
+        projeto.status = models.StatusProjeto.FINALIZADO
+        db.commit()
+        db.refresh(projeto)
+        return projeto
+    return None
+
+
+# =========================================================
+# BLOCO 4: PAINEL DO CLIENTE E ESTATÍSTICAS
+# =========================================================
+
 def get_compras_cliente(db: Session, cliente_id: int):
-    """Busca todos os projetos que um cliente comprou e já foram finalizados."""
+    """Busca apenas os cursos que o cliente já pagou e liberou (FINALIZADOS)."""
     return db.query(models.Projeto).filter(
         models.Projeto.cliente_id == cliente_id,
         models.Projeto.status == models.StatusProjeto.FINALIZADO
     ).all()
 
-
-# =========================================================
-# BLOCO 3: LÓGICA DE ESCROW (PAGAMENTO E SEGURANÇA)
-# =========================================================
-
-def depositar_pagamento(db: Session, projeto_id: int):
-    """
-    Simula o pagamento do cliente. 
-    O dinheiro fica 'preso' no sistema e um código de 6 dígitos é gerado.
-    """
-    projeto = get_projeto(db, projeto_id)
-    if projeto and projeto.status == models.StatusProjeto.ABERTO:
-        # Gera um código aleatório de 6 dígitos (ex: 123456)
-        codigo_novo = str(random.randint(100000, 999999))
-        
-        projeto.status = models.StatusProjeto.PAGAMENTO_RETIDO
-        projeto.valor_no_escrow = projeto.valor
-        projeto.codigo_verificacao = codigo_novo
-        
-        db.commit()
-        db.refresh(projeto)
-        
-        # Log para o desenvolvedor ver o código no terminal
-        print(f"--- ESCROW ATIVO: Projeto {projeto.id} | Código: {codigo_novo} ---")
-        return projeto
-    return None
-
-def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo_inserido: str):
-    """
-    Compara o código digitado pelo comprador.
-    Se estiver correto, o status muda para FINALIZADO e o conteúdo é liberado.
-    """
-    projeto = get_projeto(db, projeto_id)
-    
-    if projeto and projeto.codigo_verificacao == codigo_inserido:
-        projeto.status = models.StatusProjeto.FINALIZADO
-        db.commit()
-        db.refresh(projeto)
-        return projeto  # Retorna o projeto agora com conteúdo visível
-    return None
-
-
-# =========================================================
-# BLOCO 4: ESTATÍSTICAS E DELEÇÃO
-# =========================================================
-
 def contar_vendas_vendedor(db: Session, vendedor_id: int):
-    """Conta quantas vendas o vendedor completou com sucesso."""
+    """Retorna o total de vendas concluídas para o painel do vendedor."""
     return db.query(models.Projeto).filter(
         models.Projeto.vendedor_id == vendedor_id,
         models.Projeto.status == models.StatusProjeto.FINALIZADO
