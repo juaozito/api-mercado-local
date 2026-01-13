@@ -1,7 +1,7 @@
 import bcrypt
 from jose import jwt
 from datetime import datetime, timedelta
-from .config import settings
+from config import settings
 
 # =========================================================
 # BLOCO 1: SEGURANÇA DE SENHAS (BCRYPT)
