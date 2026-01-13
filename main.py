@@ -1,6 +1,4 @@
 import os
-import models, crud, schemas, database, security
-from database import engine, Base, get_db
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -10,23 +8,23 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from typing import List, Optional
 
-# Importações internas do projeto
-from .database import engine, Base, get_db
+# IMPORTAÇÕES DIRETAS (Sem pontos ou caminhos de pastas)
+import models
+import crud
+import schemas
+import database
+import security
+from database import engine, Base, get_db
 
-# =========================================================
-# CONFIGURAÇÃO DE CAMINHOS (DINÂMICO PARA O RENDER)
-# =========================================================
+# Definição do diretório base na raiz
+BASE_DIR = Path(__file__).resolve().parent
 
-# Localiza a raiz do projeto (api-mercado-local)
-# O main.py está em backend/app/main.py, por isso subimos 3 níveis
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-FRONTEND_PATH = BASE_DIR / "frontend"
-
-# Cria as tabelas no banco de dados
+# Cria as tabelas
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Mercado Local Escrow", version="1.0.0")
+app = FastAPI(title="Mercado Local Escrow")
 
+# Middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,29 +33,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================================================
-# VÍNCULO COM O FRONTEND
-# =========================================================
+# Servindo arquivos da raiz conforme sua nova estrutura
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# Tentativa de montar as pastas. Se falhar, o health ainda funciona.
-try:
-    app.mount("/css", StaticFiles(directory=str(FRONTEND_PATH / "css")), name="css")
-    app.mount("/js", StaticFiles(directory=str(FRONTEND_PATH / "js")), name="js")
-    templates = Jinja2Templates(directory=str(FRONTEND_PATH / "html"))
-    print("✅ Frontend montado com sucesso!")
-except Exception as e:
-    templates = None
-    print(f"❌ Erro ao montar frontend: {e}")
-
-# =========================================================
-# ROTAS DE PÁGINAS (FRONTEND)
-# =========================================================
-
-@app.get("/", response_class=HTMLResponse, tags=["Páginas"])
+@app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    if templates:
-        return templates.TemplateResponse("index.html", {"request": request})
-    return HTMLResponse(content="<h1>Erro: Pasta frontend não encontrada no servidor.</h1>", status_code=500)
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/cadastro", response_class=HTMLResponse, tags=["Páginas"])
 async def pagina_cadastro(request: Request):
