@@ -16,13 +16,15 @@ import database
 import security
 from database import engine, Base, get_db
 
+# Definição do diretório base na raiz
 BASE_DIR = Path(__file__).resolve().parent
 
-# Cria as tabelas no banco de dados
+# Cria as tabelas no banco de dados se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Mercado Local Escrow")
 
+# Configuração de CORS para permitir que o frontend se comunique com o backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,10 +34,13 @@ app.add_middleware(
 )
 
 # Servindo ficheiros estáticos e templates da raiz
+# Certifique-se de que as pastas /static e /templates estão na raiz
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# --- ROTAS DE PÁGINAS (FRONTEND) ---
+# =========================================================
+# ROTAS DE PÁGINAS (FRONTEND - JINJA2)
+# =========================================================
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -61,7 +66,13 @@ async def pagina_loja(request: Request):
 async def pagina_anunciar(request: Request):
     return templates.TemplateResponse("anunciar.html", {"request": request})
 
-# --- ROTAS DE API ---
+@app.get("/meus-cursos", response_class=HTMLResponse)
+async def pagina_meus_cursos(request: Request):
+    return templates.TemplateResponse("meus_cursos.html", {"request": request})
+
+# =========================================================
+# ROTAS DE API (BACKEND)
+# =========================================================
 
 @app.post("/login/", tags=["Usuários"])
 def login(dados: schemas.UsuarioLogin, db: Session = Depends(get_db)):
@@ -102,6 +113,11 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
     if not projeto:
         raise HTTPException(status_code=400, detail="Código inválido ou projeto já finalizado.")
     return {"status": "sucesso", "mensagem": "Conteúdo liberado e venda finalizada!"}
+
+@app.get("/vendedor/{vendedor_id}/total-vendas", tags=["Painel do Vendedor"])
+def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
+    total = crud.contar_vendas_vendedor(db, vendedor_id=vendedor_id)
+    return {"vendedor_id": vendedor_id, "total_vendas": total}
 
 @app.get("/health", tags=["Healthcheck"])
 def healthcheck():
