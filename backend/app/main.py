@@ -1,82 +1,35 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from sqlalchemy.orm import Session
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from typing import List, Optional
+from pathlib import Path
 
-# Importações internas do projeto
-from . import models, crud, schemas, database, security
-from .database import engine, Base, get_db
+# --- LÓGICA DE LOCALIZAÇÃO AUTOMÁTICA ---
+# 1. Pega o caminho de onde o main.py está (backend/app)
+current_file_path = Path(__file__).resolve()
 
-# =========================================================
-# CONFIGURAÇÃO DE CAMINHOS (CORREÇÃO PARA O RENDER)
-# =========================================================
+# 2. Sobe até a raiz do projeto (api-mercado-local)
+# .parent é 'app', .parent.parent é 'backend', .parent.parent.parent é a raiz
+BASE_DIR = current_file_path.parent.parent.parent
 
-# Pega o caminho absoluto da pasta 'app'
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+# 3. Define o caminho exato da pasta frontend
+FRONTEND_PATH = BASE_DIR / "frontend"
 
-# Sobe duas pastas para chegar na raiz 'api-mercado-local'
-# app -> backend -> api-mercado-local
-BASE_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+app = FastAPI()
 
-# Define o caminho para a pasta frontend
-FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+# --- VÍNCULO COM O FRONTEND ---
+# Monta as pastas de arquivos estáticos usando o caminho absoluto descoberto
+app.mount("/css", StaticFiles(directory=str(FRONTEND_PATH / "css")), name="css")
+app.mount("/js", StaticFiles(directory=str(FRONTEND_PATH / "js")), name="js")
 
-# =========================================================
-# CONFIGURAÇÃO INICIAL
-# =========================================================
-
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="Mercado Local Escrow")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Servindo arquivos estáticos (CSS e JS)
-# Verifique se os nomes das pastas no VS Code estão em minúsculo
-app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
-app.mount("/js", StaticFiles(directory=os.path.join(FRONTEND_DIR, "js")), name="js")
-
-# Configurando o Jinja2 para os HTMLs
-templates = Jinja2Templates(directory=os.path.join(FRONTEND_DIR, "html"))
-
-# =========================================================
-# ROTAS DE PÁGINAS (FRONTEND)
-# =========================================================
+# Configura o motor de templates para a pasta html
+templates = Jinja2Templates(directory=str(FRONTEND_PATH / "html"))
 
 @app.get("/", response_class=HTMLResponse)
-async def login_page(request: Request):
-    # O arquivo deve se chamar 'index.html' dentro de frontend/html/
+async def home(request: Request):
+    # O FastAPI agora sabe exatamente onde procurar o index.html
     return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/cadastro", response_class=HTMLResponse)
-async def cadastro_page(request: Request):
-    return templates.TemplateResponse("cadastro.html", {"request": request})
-
-@app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_page(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
-@app.get("/anunciar", response_class=HTMLResponse)
-async def anunciar_page(request: Request):
-    return templates.TemplateResponse("anunciar.html", {"request": request})
-
-# =========================================================
-# ROTAS DA API (Sua lógica aqui abaixo)
-# =========================================================
-
-@app.get("/health")
-def health():
-    return {"status": "Online"}
 
 # Re-adicione suas rotas de @app.post("/usuarios/"), etc.
 
