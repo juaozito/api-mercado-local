@@ -3,81 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mercado Escrow - Tudo em Um</title>
+    <title>Mercado Escrow | Marketplace Seguro</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilos rápidos para garantir que as seções funcionem */
-        .page-section { display: none; }
-        .active { display: block; }
-        nav { background: #333; padding: 15px; display: flex; justify-content: center; gap: 20px; }
-        nav a { color: white; text-decoration: none; font-weight: bold; cursor: pointer; }
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        /* Garantindo funcionalidade da SPA */
+        .page-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .page-section.active { display: block; opacity: 1; }
+        
+        /* Layout Base */
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; margin: 0; color: #333; }
+        nav { background: #2d3436; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .nav-links { display: flex; gap: 25px; }
+        nav a { color: #dfe6e9; text-decoration: none; font-weight: 600; cursor: pointer; transition: color 0.2s; }
+        nav a:hover { color: #00cec9; }
+        
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* Formulários */
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; font-size: 1rem; }
+        button:active { transform: scale(0.98); }
+        .btn-primary { background: #0984e3; color: white; }
+        .btn-success { background: #00b894; color: white; }
+        
+        /* Tabelas */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #636e72; text-transform: uppercase; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <nav id="main-nav" style="display: none;">
-        <a onclick="showSection('loja')">🛒 Loja</a>
-        <a onclick="showSection('dashboard')">📊 Dashboard</a>
-        <a onclick="showSection('anunciar')">➕ Anunciar</a>
-        <a onclick="logout()" style="color: #ff4757; margin-left: 20px;">Sair</a>
+        <div style="font-size: 1.2rem; font-weight: bold; color: #00cec9;">🛡️ MercadoEscrow</div>
+        <div class="nav-links">
+            <a onclick="showSection('loja')">🛒 Loja</a>
+            <a onclick="showSection('dashboard')">📊 Minha Conta</a>
+            <a onclick="showSection('anunciar')">➕ Vender</a>
+            <a onclick="logout()" style="color: #ff7675;">Sair</a>
+        </div>
     </nav>
 
     <div class="container">
         
         <div id="section-login" class="page-section active">
-            <div style="max-width: 350px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
-                <h2 style="text-align: center;">Mercado Escrow</h2>
-                <input type="email" id="login-email" placeholder="E-mail" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <input type="password" id="login-senha" placeholder="Senha" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <button onclick="fazerLogin()" style="width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer;">Entrar</button>
-                <p style="text-align: center; margin-top: 15px;">Não tem conta? <a onclick="showSection('cadastro')" style="color: #1877f2; cursor: pointer;">Cadastre-se</a></p>
-                <p id="login-msg" style="text-align: center; margin-top: 10px;"></p>
+            <div class="card" style="max-width: 400px; margin: 60px auto;">
+                <h2 style="text-align: center; margin-bottom: 25px;">Acessar Plataforma</h2>
+                <input type="email" id="login-email" placeholder="Seu e-mail">
+                <input type="password" id="login-senha" placeholder="Sua senha">
+                <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    Novo por aqui? <a onclick="showSection('cadastro')" style="color: #0984e3; cursor: pointer;">Crie uma conta gratuita</a>
+                </p>
+                <p id="login-msg" style="text-align: center; color: #d63031; font-size: 0.9rem;"></p>
             </div>
         </div>
 
         <div id="section-cadastro" class="page-section">
-            <div style="max-width: 350px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
-                <h2 style="text-align: center;">Criar Conta</h2>
-                <input type="text" id="cad-nome" placeholder="Nome Completo" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <input type="email" id="cad-email" placeholder="E-mail" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <input type="password" id="cad-senha" placeholder="Senha" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <button onclick="cadastrar()" style="width: 100%; padding: 12px; background: #42b72a; color: white; border: none; border-radius: 6px; cursor: pointer;">Cadastrar</button>
-                <p style="text-align: center; margin-top: 15px;"><a onclick="showSection('login')" style="cursor: pointer;">Voltar ao Login</a></p>
-                <p id="cad-msg" style="text-align: center; margin-top: 10px;"></p>
+            <div class="card" style="max-width: 400px; margin: 60px auto;">
+                <h2 style="text-align: center; margin-bottom: 25px;">Cadastro de Usuário</h2>
+                <input type="text" id="cad-nome" placeholder="Nome completo">
+                <input type="email" id="cad-email" placeholder="Melhor e-mail">
+                <input type="password" id="cad-senha" placeholder="Crie uma senha forte">
+                <button class="btn-success" onclick="cadastrar()">Finalizar Cadastro</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    <a onclick="showSection('login')" style="color: #636e72; cursor: pointer;">Já tenho conta (Login)</a>
+                </p>
+                <p id="cad-msg" style="text-align: center; color: #00b894;"></p>
             </div>
         </div>
 
         <div id="section-dashboard" class="page-section">
-            <h1>Olá, <span id="nome-usuario">Usuário</span>!</h1>
-            <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; flex: 1; text-align: center; border: 1px solid #ddd;">
-                    <p>Vendas Concluídas</p>
-                    <h3 id="total-vendas">0</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h1>Bem-vindo, <span id="nome-usuario" style="color: #0984e3;">...</span>!</h1>
+                <div style="background: white; padding: 15px 25px; border-radius: 10px; border-left: 5px solid #00b894; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <small style="color: #636e72; display: block;">Vendas Concluídas</small>
+                    <strong style="font-size: 1.5rem;" id="total-vendas">0</strong>
                 </div>
             </div>
-            <h2>Meus Projetos / Compras</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #eee;">
-                    <tr><th>Projeto</th><th>Valor</th><th>Status</th><th>Ação</th></tr>
-                </thead>
-                <tbody id="tabela-projetos"></tbody>
-            </table>
+
+            <div class="card">
+                <h3>📦 Meus Itens e Compras</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-projetos">
+                        </tbody>
+                </table>
+            </div>
         </div>
 
         <div id="section-loja" class="page-section">
-            <h1>🛒 Vitrine de Cursos</h1>
-            <div id="vitrine-cursos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            <h1 style="margin-bottom: 30px;">🛒 Vitrine de Produtos Digitais</h1>
+            <div id="vitrine-cursos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
                 </div>
         </div>
 
         <div id="section-anunciar" class="page-section">
-            <div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; border: 1px solid #ddd;">
-                <h2>Anunciar Novo Serviço</h2>
-                <input type="text" id="anu-titulo" placeholder="Título do Projeto" style="width: 100%; padding: 12px; margin-bottom: 15px;">
-                <input type="number" id="anu-valor" placeholder="Valor (R$)" style="width: 100%; padding: 12px; margin-bottom: 15px;">
-                <textarea id="anu-conteudo" rows="4" placeholder="Link ou Conteúdo Digital" style="width: 100%; padding: 12px; margin-bottom: 15px;"></textarea>
-                <button onclick="enviarAnuncio()" style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Publicar Agora</button>
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h2>📢 Criar Novo Anúncio</h2>
+                <p style="color: #636e72;">Seu conteúdo ficará travado até que o comprador insira o código de liberação.</p>
+                
+                <label>Título do Produto</label>
+                <input type="text" id="anu-titulo" placeholder="Ex: Curso de Python Completo">
+                
+                <label>Preço de Venda (R$)</label>
+                <input type="number" id="anu-valor" placeholder="0.00">
+                
+                <label>Conteúdo Digital (Link ou Texto)</label>
+                <textarea id="anu-conteudo" rows="5" placeholder="Cole aqui o link do Drive ou o conteúdo que o comprador irá receber."></textarea>
+                
+                <button class="btn-success" onclick="enviarAnuncio()" style="margin-top: 10px;">Publicar Produto</button>
                 <p id="anu-msg" style="text-align: center; margin-top: 15px;"></p>
             </div>
         </div>
@@ -85,16 +129,25 @@
     </div>
 
     <script>
-        // Lógica de Navegação SPA
         function showSection(sectionId) {
+            // Esconde todas as seções
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('section-' + sectionId).classList.add('active');
             
-            // Só mostra o menu se não estiver no login/cadastro
+            // Mostra a seção alvo
+            const target = document.getElementById('section-' + sectionId);
+            if (target) target.classList.add('active');
+            
+            // Controle de visibilidade do menu
+            const nav = document.getElementById('main-nav');
             if (sectionId === 'login' || sectionId === 'cadastro') {
-                document.getElementById('main-nav').style.display = 'none';
+                nav.style.display = 'none';
             } else {
-                document.getElementById('main-nav').style.display = 'flex';
+                nav.style.display = 'flex';
+                
+                // Atualiza dados conforme a seção
+                const nome = localStorage.getItem('nome');
+                if(nome) document.getElementById('nome-usuario').innerText = nome;
+
                 if (sectionId === 'dashboard') carregarDashboard();
                 if (sectionId === 'loja') carregarLoja();
             }
@@ -105,17 +158,20 @@
             showSection('login');
         }
 
-        // Verifica se já está logado ao abrir
         window.onload = () => {
             if (localStorage.getItem('usuario_id')) {
                 showSection('dashboard');
+            } else {
+                showSection('login');
             }
         };
     </script>
 
+    <script src="/static/js/login.js"></script>
     <script src="/static/js/cadastro.js"></script>
     <script src="/static/js/anunciar.js"></script>
     <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/loja.js"></script>
 
 </body>
 </html>
