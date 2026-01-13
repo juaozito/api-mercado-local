@@ -1,37 +1,71 @@
 import os
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 from pathlib import Path
+from typing import List, Optional
 
-# --- LÓGICA DE LOCALIZAÇÃO AUTOMÁTICA ---
-# 1. Pega o caminho de onde o main.py está (backend/app)
-current_file_path = Path(__file__).resolve()
+# Importações internas do projeto
+from . import models, crud, schemas, database, security
+from .database import engine, Base, get_db
 
-# 2. Sobe até a raiz do projeto (api-mercado-local)
-# .parent é 'app', .parent.parent é 'backend', .parent.parent.parent é a raiz
-BASE_DIR = current_file_path.parent.parent.parent
+# =========================================================
+# CONFIGURAÇÃO DE CAMINHOS (DINÂMICO PARA O RENDER)
+# =========================================================
 
-# 3. Define o caminho exato da pasta frontend
+# Localiza a raiz do projeto (api-mercado-local)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FRONTEND_PATH = BASE_DIR / "frontend"
 
-app = FastAPI()
+# Cria as tabelas no banco de dados
+Base.metadata.create_all(bind=engine)
 
-# --- VÍNCULO COM O FRONTEND ---
-# Monta as pastas de arquivos estáticos usando o caminho absoluto descoberto
-app.mount("/css", StaticFiles(directory=str(FRONTEND_PATH / "css")), name="css")
-app.mount("/js", StaticFiles(directory=str(FRONTEND_PATH / "js")), name="js")
+app = FastAPI(title="Mercado Local Escrow", version="1.0.0")
 
-# Configura o motor de templates para a pasta html
-templates = Jinja2Templates(directory=str(FRONTEND_PATH / "html"))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/", response_class=HTMLResponse)
+# =========================================================
+# VÍNCULO COM O FRONTEND (SÓ MONTA SE EXISTIR)
+# =========================================================
+
+if FRONTEND_PATH.exists():
+    app.mount("/css", StaticFiles(directory=str(FRONTEND_PATH / "css")), name="css")
+    app.mount("/js", StaticFiles(directory=str(FRONTEND_PATH / "js")), name="js")
+    templates = Jinja2Templates(directory=str(FRONTEND_PATH / "html"))
+else:
+    templates = None
+    print(f"AVISO: Pasta frontend não encontrada em {FRONTEND_PATH}")
+
+# =========================================================
+# ROTAS DE PÁGINAS (FRONTEND)
+# =========================================================
+
+@app.get("/", response_class=HTMLResponse, tags=["Páginas"])
 async def home(request: Request):
-    # O FastAPI agora sabe exatamente onde procurar o index.html
-    return templates.TemplateResponse("index.html", {"request": request})
+    if templates:
+        return templates.TemplateResponse("index.html", {"request": request})
+    return "<h1>Erro: Pasta frontend não encontrada no servidor.</h1>"
 
-# Re-adicione suas rotas de @app.post("/usuarios/"), etc.
+@app.get("/cadastro", response_class=HTMLResponse, tags=["Páginas"])
+async def pagina_cadastro(request: Request):
+    return templates.TemplateResponse("cadastro.html", {"request": request})
+
+@app.get("/dashboard", response_class=HTMLResponse, tags=["Páginas"])
+async def pagina_dashboard(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+# =========================================================
+# GESTÃO DE USUÁRIOS (API)
+# =========================================================
 
 @app.post("/usuarios/", response_model=schemas.Usuario, tags=["Usuários"])
 def cadastrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
@@ -54,6 +88,10 @@ def login(dados: schemas.UsuarioLogin, db: Session = Depends(get_db)):
         "nome": usuario.nome
     }
 
+# =========================================================
+# GESTÃO DE PROJETOS (API)
+# =========================================================
+
 @app.post("/projetos/", response_model=schemas.Projeto, tags=["Projetos"])
 def criar_anuncio(projeto: schemas.ProjetoCreate, db: Session = Depends(get_db)):
     return crud.create_projeto(db=db, projeto=projeto)
@@ -61,6 +99,10 @@ def criar_anuncio(projeto: schemas.ProjetoCreate, db: Session = Depends(get_db))
 @app.get("/projetos/", response_model=List[schemas.Projeto], tags=["Projetos"])
 def listar_anuncios(db: Session = Depends(get_db)):
     return crud.get_projetos(db)
+
+# =========================================================
+# OPERAÇÃO DE COMPRA E ESCROW (API)
+# =========================================================
 
 @app.post("/projetos/{projeto_id}/pagar/", tags=["Escrow / Vendas"])
 def pagar_projeto(projeto_id: int, cliente_id: Optional[int] = 1, db: Session = Depends(get_db)):
@@ -80,6 +122,10 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
         raise HTTPException(status_code=400, detail="Código inválido ou projeto já finalizado.")
     return {"status": "sucesso", "mensagem": "Conteúdo liberado e venda finalizada!"}
 
+# =========================================================
+# PAINEL DO VENDEDOR
+# =========================================================
+
 @app.get("/vendedor/{vendedor_id}/total-vendas", tags=["Painel do Vendedor"])
 def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
     total = crud.contar_vendas_vendedor(db, vendedor_id=vendedor_id)
@@ -87,4 +133,4 @@ def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
 
 @app.get("/health", tags=["Healthcheck"])
 def healthcheck():
-    return {"status": "Online"}
+    return {"status": "Online", "sistema": "Mercado Local Escrow"}
