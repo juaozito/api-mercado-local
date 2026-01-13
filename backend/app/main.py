@@ -106,6 +106,12 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
         raise HTTPException(status_code=400, detail="Código inválido ou projeto já finalizado.")
     return {"status": "sucesso", "mensagem": "Conteúdo liberado e venda finalizada!"}
 
+@app.post("/logout", tags=["Usuários"])
+def logout():
+    """No JWT, o logout é feito limpando o token no frontend, 
+    mas esta rota serve para redirecionar o usuário."""
+    return {"status": "sucesso", "mensagem": "Token invalidado localmente. Redirecionando para login..."}
+
 # =========================================================
 # PAINEL DO CLIENTE E VENDEDOR (ESTATÍSTICAS)
 # =========================================================
