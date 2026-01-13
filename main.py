@@ -46,13 +46,14 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+# No seu main.py, mude estas linhas:
 @app.get("/login", response_class=HTMLResponse)
 async def pagina_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/cadastro", response_class=HTMLResponse)
 async def pagina_cadastro(request: Request):
-    return templates.TemplateResponse("cadastro.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request):
@@ -122,3 +123,10 @@ def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
 @app.get("/health", tags=["Healthcheck"])
 def healthcheck():
     return {"status": "Online", "sistema": "Mercado Local Escrow"}
+
+@app.post("/usuarios/", response_model=schemas.Usuario, tags=["Usuários"])
+def cadastrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    db_usuario = crud.get_usuario_by_email(db, email=usuario.email)
+    if db_usuario:
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado.")
+    return crud.create_usuario(db=db, usuario=usuario)

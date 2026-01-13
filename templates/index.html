@@ -21,17 +21,20 @@
         .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        /* Formulários */
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
         button { width: 100%; padding: 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; font-size: 1rem; }
         button:active { transform: scale(0.98); }
         .btn-primary { background: #0984e3; color: white; }
         .btn-success { background: #00b894; color: white; }
         
-        /* Tabelas */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; }
         th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; color: #636e72; text-transform: uppercase; font-size: 0.8rem; }
+
+        /* Estilo para a vitrine */
+        .produto-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        .produto-card h3 { margin: 10px 0; }
+        .price { color: #00b894; font-weight: bold; font-size: 1.2rem; display: block; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -67,11 +70,11 @@
                 <input type="text" id="cad-nome" placeholder="Nome completo">
                 <input type="email" id="cad-email" placeholder="Melhor e-mail">
                 <input type="password" id="cad-senha" placeholder="Crie uma senha forte">
-                <button class="btn-success" onclick="cadastrar()">Finalizar Cadastro</button>
+                <button class="btn-success" onclick="fazerCadastro()">Finalizar Cadastro</button>
                 <p style="text-align: center; margin-top: 20px;">
                     <a onclick="showSection('login')" style="color: #636e72; cursor: pointer;">Já tenho conta (Login)</a>
                 </p>
-                <p id="cad-msg" style="text-align: center; color: #00b894;"></p>
+                <p id="cad-msg" style="text-align: center; font-size: 0.9rem;"></p>
             </div>
         </div>
 
@@ -79,11 +82,10 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h1>Bem-vindo, <span id="nome-usuario" style="color: #0984e3;">...</span>!</h1>
                 <div style="background: white; padding: 15px 25px; border-radius: 10px; border-left: 5px solid #00b894; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <small style="color: #636e72; display: block;">Vendas Concluídas</small>
-                    <strong style="font-size: 1.5rem;" id="total-vendas">0</strong>
+                    <small style="color: #636e72; display: block;">ID do Usuário</small>
+                    <strong style="font-size: 1.2rem;" id="user-id-display">0</strong>
                 </div>
             </div>
-
             <div class="card">
                 <h3>📦 Meus Itens e Compras</h3>
                 <table>
@@ -95,8 +97,7 @@
                             <th>Ação</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-projetos">
-                        </tbody>
+                    <tbody id="tabela-projetos"></tbody>
                 </table>
             </div>
         </div>
@@ -110,18 +111,10 @@
         <div id="section-anunciar" class="page-section">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <h2>📢 Criar Novo Anúncio</h2>
-                <p style="color: #636e72;">Seu conteúdo ficará travado até que o comprador insira o código de liberação.</p>
-                
-                <label>Título do Produto</label>
                 <input type="text" id="anu-titulo" placeholder="Ex: Curso de Python Completo">
-                
-                <label>Preço de Venda (R$)</label>
-                <input type="number" id="anu-valor" placeholder="0.00">
-                
-                <label>Conteúdo Digital (Link ou Texto)</label>
-                <textarea id="anu-conteudo" rows="5" placeholder="Cole aqui o link do Drive ou o conteúdo que o comprador irá receber."></textarea>
-                
-                <button class="btn-success" onclick="enviarAnuncio()" style="margin-top: 10px;">Publicar Produto</button>
+                <input type="number" id="anu-valor" placeholder="Preço (Ex: 50.00)">
+                <textarea id="anu-conteudo" rows="5" placeholder="Link do Drive ou conteúdo para o comprador"></textarea>
+                <button class="btn-success" onclick="fazerAnuncio()">Publicar Produto</button>
                 <p id="anu-msg" style="text-align: center; margin-top: 15px;"></p>
             </div>
         </div>
@@ -129,27 +122,133 @@
     </div>
 
     <script>
+        const API_BASE = ""; // Como o HTML é servido pelo FastAPI, deixamos vazio
+
+        // --- NAVEGAÇÃO SPA ---
         function showSection(sectionId) {
-            // Esconde todas as seções
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            
-            // Mostra a seção alvo
             const target = document.getElementById('section-' + sectionId);
             if (target) target.classList.add('active');
             
-            // Controle de visibilidade do menu
             const nav = document.getElementById('main-nav');
             if (sectionId === 'login' || sectionId === 'cadastro') {
                 nav.style.display = 'none';
             } else {
                 nav.style.display = 'flex';
+                document.getElementById('nome-usuario').innerText = localStorage.getItem('nome') || 'Usuário';
+                document.getElementById('user-id-display').innerText = localStorage.getItem('usuario_id') || '0';
                 
-                // Atualiza dados conforme a seção
-                const nome = localStorage.getItem('nome');
-                if(nome) document.getElementById('nome-usuario').innerText = nome;
-
-                if (sectionId === 'dashboard') carregarDashboard();
                 if (sectionId === 'loja') carregarLoja();
+                if (sectionId === 'dashboard') carregarDashboard();
+            }
+        }
+
+        // --- LÓGICA DE LOGIN ---
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            const msg = document.getElementById('login-msg');
+
+            try {
+                const response = await fetch('/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('usuario_id', data.usuario_id);
+                    localStorage.setItem('nome', data.nome);
+                    showSection('dashboard');
+                } else {
+                    msg.innerText = data.detail || "Erro ao fazer login";
+                }
+            } catch (e) {
+                msg.innerText = "Erro ao conectar com o servidor.";
+            }
+        }
+
+        // --- LÓGICA DE CADASTRO ---
+        async function fazerCadastro() {
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            const senha = document.getElementById('cad-senha').value;
+            const msg = document.getElementById('cad-msg');
+
+            try {
+                const response = await fetch('/usuarios/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                if (response.ok) {
+                    msg.style.color = "#00b894";
+                    msg.innerText = "Cadastro realizado! Redirecionando...";
+                    setTimeout(() => showSection('login'), 2000);
+                } else {
+                    const data = await response.json();
+                    msg.style.color = "#d63031";
+                    msg.innerText = data.detail || "Erro no cadastro";
+                }
+            } catch (e) {
+                msg.innerText = "Erro de conexão.";
+            }
+        }
+
+        // --- CARREGAR LOJA ---
+        async function carregarLoja() {
+            const vitrine = document.getElementById('vitrine-cursos');
+            vitrine.innerHTML = "Carregando...";
+            try {
+                const res = await fetch('/projetos/');
+                const projetos = await res.json();
+                vitrine.innerHTML = "";
+                projetos.forEach(p => {
+                    if(p.status === "aberto") {
+                        vitrine.innerHTML += `
+                            <div class="produto-card">
+                                <h3>${p.titulo}</h3>
+                                <span class="price">R$ ${p.valor.toFixed(2)}</span>
+                                <button class="btn-primary" onclick="comprar(${p.id})">Comprar Agora</button>
+                            </div>
+                        `;
+                    }
+                });
+            } catch (e) { vitrine.innerHTML = "Erro ao carregar loja."; }
+        }
+
+        // --- COMPRAR E ESCROW ---
+        async function comprar(id) {
+            const userId = localStorage.getItem('usuario_id');
+            if(!userId) return showSection('login');
+
+            if(confirm("Deseja reter o pagamento para este produto?")) {
+                await fetch(`/projetos/${id}/pagar/?cliente_id=${userId}`, { method: 'POST' });
+                alert("Pagamento retido no Escrow! Vá em 'Minha Conta' para liberar com o código.");
+                showSection('dashboard');
+            }
+        }
+
+        // --- ANUNCIAR NOVO ---
+        async function fazerAnuncio() {
+            const titulo = document.getElementById('anu-titulo').value;
+            const valor = document.getElementById('anu-valor').value;
+            const conteudo_digital = document.getElementById('anu-conteudo').value;
+            const vendedor_id = localStorage.getItem('usuario_id');
+
+            const res = await fetch('/projetos/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, valor, vendedor_id, conteudo_digital })
+            });
+
+            if(res.ok) {
+                alert("Anúncio publicado!");
+                showSection('loja');
             }
         }
 
@@ -166,12 +265,5 @@
             }
         };
     </script>
-
-    <script src="/static/js/login.js"></script>
-    <script src="/static/js/cadastro.js"></script>
-    <script src="/static/js/anunciar.js"></script>
-    <script src="/static/js/dashboard.js"></script>
-    <script src="/static/js/loja.js"></script>
-
 </body>
 </html>
