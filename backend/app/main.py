@@ -17,6 +17,7 @@ from .database import engine, Base, get_db
 # =========================================================
 
 # Localiza a raiz do projeto (api-mercado-local)
+# O main.py está em backend/app/main.py, por isso subimos 3 níveis
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FRONTEND_PATH = BASE_DIR / "frontend"
 
@@ -34,16 +35,18 @@ app.add_middleware(
 )
 
 # =========================================================
-# VÍNCULO COM O FRONTEND (SÓ MONTA SE EXISTIR)
+# VÍNCULO COM O FRONTEND
 # =========================================================
 
-if FRONTEND_PATH.exists():
+# Tentativa de montar as pastas. Se falhar, o health ainda funciona.
+try:
     app.mount("/css", StaticFiles(directory=str(FRONTEND_PATH / "css")), name="css")
     app.mount("/js", StaticFiles(directory=str(FRONTEND_PATH / "js")), name="js")
     templates = Jinja2Templates(directory=str(FRONTEND_PATH / "html"))
-else:
+    print("✅ Frontend montado com sucesso!")
+except Exception as e:
     templates = None
-    print(f"AVISO: Pasta frontend não encontrada em {FRONTEND_PATH}")
+    print(f"❌ Erro ao montar frontend: {e}")
 
 # =========================================================
 # ROTAS DE PÁGINAS (FRONTEND)
@@ -53,7 +56,7 @@ else:
 async def home(request: Request):
     if templates:
         return templates.TemplateResponse("index.html", {"request": request})
-    return "<h1>Erro: Pasta frontend não encontrada no servidor.</h1>"
+    return HTMLResponse(content="<h1>Erro: Pasta frontend não encontrada no servidor.</h1>", status_code=500)
 
 @app.get("/cadastro", response_class=HTMLResponse, tags=["Páginas"])
 async def pagina_cadastro(request: Request):
@@ -123,7 +126,7 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
     return {"status": "sucesso", "mensagem": "Conteúdo liberado e venda finalizada!"}
 
 # =========================================================
-# PAINEL DO VENDEDOR
+# PAINEL DO VENDEDOR E SAÚDE
 # =========================================================
 
 @app.get("/vendedor/{vendedor_id}/total-vendas", tags=["Painel do Vendedor"])
