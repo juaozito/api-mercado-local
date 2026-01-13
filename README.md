@@ -14,39 +14,18 @@ A organização do projeto segue as melhores práticas de desenvolvimento para g
 
 ***📖 README.md: Guia principal e documentação do projeto.***
 
-***🚀 Tecnologias UtilizadasTecnologiaDescriçãoPython 3.xLinguagem principal do backendGit & GitHubControle de versionamento e hospedagemVirtualenv (venv)Isolamento de ambiente e dependências***
+***🚀 Tecnologias Utilizadas:***
 
-# 🔧 Instalação e Execução
+Python 3.x
 
-***1. Clonar o Repositório***
+Linguagem principal do backend
 
-git clone https://github.com/juaozito/api-mercado-local.git
+Git & GitHub - Controle de versionamento e hospedagem
 
-cd api-mercado-local/app
+Virtualenv (venv)
 
-***2. Configurar Ambiente Virtual (Recomendado)***
+Isolamento de ambiente e dependências*
 
-***Criar o ambiente:***
- python -m venv venv
-
-***3. Ativar no Windows:***
-
-venv\Scripts\activate
-
-# 3. Instalar Dependências
-
-
-***pip install -r requirements.txt***
-
-***🛠️ Roadmap de Funcionalidades***
-
-***[x]Configuração Inicial:*** Estrutura de pastas e integração com Git.
-
-***[ ] Módulo de Produtos:*** Implementação completa do CRUD.
-
-***[ ] Categorias:*** Organização e filtragem do mercado.
-
-***[ ] Estoque:*** Controle de inventário e movimentação.
 
 
 ***✒️ Desenvolvedor***
