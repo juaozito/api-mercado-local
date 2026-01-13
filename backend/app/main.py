@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +17,7 @@ from .database import engine, Base, get_db
 # =========================================================
 
 # Sobe 2 níveis para sair de app/ e backend/ e chegar na raiz do projeto
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 # =========================================================
