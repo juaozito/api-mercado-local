@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,11 +12,17 @@ from . import models, crud, schemas, database, security
 from .database import engine, Base, get_db
 
 # =========================================================
-# CONFIGURAÇÃO DE CAMINHOS (FRONTEND)
+# CONFIGURAÇÃO DE CAMINHOS (CORREÇÃO PARA O RENDER)
 # =========================================================
 
-# Sobe 2 níveis para sair de app/ e backend/ e chegar na raiz do projeto
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# Pega o caminho absoluto da pasta 'app'
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Sobe duas pastas para chegar na raiz 'api-mercado-local'
+# app -> backend -> api-mercado-local
+BASE_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+
+# Define o caminho para a pasta frontend
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 # =========================================================
@@ -26,10 +31,7 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    title="Mercado Local Escrow API",
-    version="1.0.0"
-)
+app = FastAPI(title="Mercado Local Escrow")
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,38 +41,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================================================
-# SERVINDO FRONTEND (CSS, JS, HTML)
-# =========================================================
-
-# Permite que o navegador acesse os arquivos dentro de frontend/css e frontend/js
+# Servindo arquivos estáticos (CSS e JS)
+# Verifique se os nomes das pastas no VS Code estão em minúsculo
 app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
 app.mount("/js", StaticFiles(directory=os.path.join(FRONTEND_DIR, "js")), name="js")
 
-# Configura a pasta onde estão seus arquivos .html
+# Configurando o Jinja2 para os HTMLs
 templates = Jinja2Templates(directory=os.path.join(FRONTEND_DIR, "html"))
 
-# --- ROTAS DE PÁGINAS (FRONTEND) ---
+# =========================================================
+# ROTAS DE PÁGINAS (FRONTEND)
+# =========================================================
 
-@app.get("/", response_class=HTMLResponse, tags=["Páginas"])
-async def pagina_login(request: Request):
+@app.get("/", response_class=HTMLResponse)
+async def login_page(request: Request):
+    # O arquivo deve se chamar 'index.html' dentro de frontend/html/
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/cadastro", response_class=HTMLResponse, tags=["Páginas"])
-async def pagina_cadastro(request: Request):
+@app.get("/cadastro", response_class=HTMLResponse)
+async def cadastro_page(request: Request):
     return templates.TemplateResponse("cadastro.html", {"request": request})
 
-@app.get("/dashboard", response_class=HTMLResponse, tags=["Páginas"])
-async def pagina_dashboard(request: Request):
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
-@app.get("/anunciar", response_class=HTMLResponse, tags=["Páginas"])
-async def pagina_anunciar(request: Request):
+@app.get("/anunciar", response_class=HTMLResponse)
+async def anunciar_page(request: Request):
     return templates.TemplateResponse("anunciar.html", {"request": request})
 
 # =========================================================
-# ROTAS DA API (LÓGICA EXISTENTE)
+# ROTAS DA API (Sua lógica aqui abaixo)
 # =========================================================
+
+@app.get("/health")
+def health():
+    return {"status": "Online"}
+
+# Re-adicione suas rotas de @app.post("/usuarios/"), etc.
 
 @app.post("/usuarios/", response_model=schemas.Usuario, tags=["Usuários"])
 def cadastrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
