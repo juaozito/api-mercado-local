@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from typing import List, Optional
 
-# IMPORTAÇÕES DIRETAS (Sem pontos ou caminhos de pastas)
+# IMPORTAÇÕES DIRETAS (Ajustadas para ficheiros na raiz)
 import models
 import crud
 import schemas
@@ -16,15 +16,13 @@ import database
 import security
 from database import engine, Base, get_db
 
-# Definição do diretório base na raiz
 BASE_DIR = Path(__file__).resolve().parent
 
-# Cria as tabelas
+# Cria as tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Mercado Local Escrow")
 
-# Middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,32 +31,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Servindo arquivos da raiz conforme sua nova estrutura
+# Servindo ficheiros estáticos e templates da raiz
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+# --- ROTAS DE PÁGINAS (FRONTEND) ---
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/cadastro", response_class=HTMLResponse, tags=["Páginas"])
+@app.get("/login", response_class=HTMLResponse)
+async def pagina_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/cadastro", response_class=HTMLResponse)
 async def pagina_cadastro(request: Request):
     return templates.TemplateResponse("cadastro.html", {"request": request})
 
-@app.get("/dashboard", response_class=HTMLResponse, tags=["Páginas"])
+@app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
-# =========================================================
-# GESTÃO DE USUÁRIOS (API)
-# =========================================================
+@app.get("/loja", response_class=HTMLResponse)
+async def pagina_loja(request: Request):
+    return templates.TemplateResponse("loja.html", {"request": request})
 
-@app.post("/usuarios/", response_model=schemas.Usuario, tags=["Usuários"])
-def cadastrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
-    usuario_existente = crud.get_usuario_by_email(db, email=usuario.email)
-    if usuario_existente:
-        raise HTTPException(status_code=400, detail="E-mail já cadastrado.")
-    return crud.create_usuario(db=db, usuario=usuario)
+@app.get("/anunciar", response_class=HTMLResponse)
+async def pagina_anunciar(request: Request):
+    return templates.TemplateResponse("anunciar.html", {"request": request})
+
+# --- ROTAS DE API ---
 
 @app.post("/login/", tags=["Usuários"])
 def login(dados: schemas.UsuarioLogin, db: Session = Depends(get_db)):
@@ -74,10 +77,6 @@ def login(dados: schemas.UsuarioLogin, db: Session = Depends(get_db)):
         "nome": usuario.nome
     }
 
-# =========================================================
-# GESTÃO DE PROJETOS (API)
-# =========================================================
-
 @app.post("/projetos/", response_model=schemas.Projeto, tags=["Projetos"])
 def criar_anuncio(projeto: schemas.ProjetoCreate, db: Session = Depends(get_db)):
     return crud.create_projeto(db=db, projeto=projeto)
@@ -85,10 +84,6 @@ def criar_anuncio(projeto: schemas.ProjetoCreate, db: Session = Depends(get_db))
 @app.get("/projetos/", response_model=List[schemas.Projeto], tags=["Projetos"])
 def listar_anuncios(db: Session = Depends(get_db)):
     return crud.get_projetos(db)
-
-# =========================================================
-# OPERAÇÃO DE COMPRA E ESCROW (API)
-# =========================================================
 
 @app.post("/projetos/{projeto_id}/pagar/", tags=["Escrow / Vendas"])
 def pagar_projeto(projeto_id: int, cliente_id: Optional[int] = 1, db: Session = Depends(get_db)):
@@ -107,15 +102,6 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
     if not projeto:
         raise HTTPException(status_code=400, detail="Código inválido ou projeto já finalizado.")
     return {"status": "sucesso", "mensagem": "Conteúdo liberado e venda finalizada!"}
-
-# =========================================================
-# PAINEL DO VENDEDOR E SAÚDE
-# =========================================================
-
-@app.get("/vendedor/{vendedor_id}/total-vendas", tags=["Painel do Vendedor"])
-def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
-    total = crud.contar_vendas_vendedor(db, vendedor_id=vendedor_id)
-    return {"vendedor_id": vendedor_id, "total_vendas": total}
 
 @app.get("/health", tags=["Healthcheck"])
 def healthcheck():

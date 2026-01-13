@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from . import models, schemas, security
+import models
+import schemas
+import security
 import random
 
 # =========================================================
@@ -87,8 +89,7 @@ def depositar_pagamento(db: Session, projeto_id: int, cliente_id: int):
 def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo: str):
     """
     Finaliza a transação:
-    Conferindo o código, o status vira 'finalizado', o dinheiro é 'liberado' 
-    e o curso aparece na biblioteca do comprador.
+    Conferindo o código, o status vira 'finalizado' e o conteúdo é liberado.
     """
     projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
     
