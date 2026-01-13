@@ -1,4 +1,6 @@
 import os
+import models, crud, schemas, database, security
+from database import engine, Base, get_db
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +11,6 @@ from pathlib import Path
 from typing import List, Optional
 
 # Importações internas do projeto
-from . import models, crud, schemas, database, security
 from .database import engine, Base, get_db
 
 # =========================================================
