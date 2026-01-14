@@ -1,6 +1,6 @@
 # 🛒 Marketplace API — Mercado Local
 
-***Status do Projeto: 🛠️ Em Andamento***
+Status do Projeto: 🛠️ Em Andamento
 
 Uma solução robusta desenvolvida em Python voltada para a gestão de marketplaces locais. O projeto foi arquitetado para otimizar o fluxo de produtos e controle de estoque, promovendo uma integração fluida entre vendedores e consumidores.
 
@@ -8,13 +8,13 @@ Uma solução robusta desenvolvida em Python voltada para a gestão de marketpla
 
 A organização do projeto segue as melhores práticas de desenvolvimento para garantir escalabilidade:
 
-***📂 /app: Núcleo da aplicação com todo o código-fonte.***
+📂 /app: Núcleo da aplicação com todo o código-fonte.
 
-***📄 .gitignore: Configurado para proteger o repositório de arquivos temporários e ambientes virtuais.***
+📄 .gitignore: Configurado para proteger o repositório de arquivos temporários e ambientes virtuais.
 
-***📖 README.md: Guia principal e documentação do projeto.***
+📖 README.md: Guia principal e documentação do projeto.
 
-***🚀 Tecnologias Utilizadas:***
+🚀 Tecnologias Utilizadas:
 
 Python 3.x
 
@@ -28,7 +28,7 @@ Isolamento de ambiente e dependências*
 
 
 
-***✒️ Desenvolvedores***
+✒️ Desenvolvedores
 
-João Lucas — GitHub: juaozito
+João Lucas — GitHub: juaozito  
 João Neto - GitHub: Netiprogrammer
