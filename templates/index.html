@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryzer | Hardware e Tecnologia</title>
+    <title>Ryzer | Mercado Gamer & Dev</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 
@@ -79,30 +80,18 @@
     </section>
 
     <section id="sec-loja" class="main-container hidden fade-in">
-        <aside class="sidebar">
-            <div class="filter-box">
-                <h3 style="margin-bottom:15px; font-weight:700;">Departamentos</h3>
-                <button class="cat-btn active" onclick="filtrar('todos')"><i class="fas fa-th-large"></i> Todos</button>
-                <button class="cat-btn" onclick="filtrar('processadores')"><i class="fas fa-microchip"></i> Processadores</button>
-                <button class="cat-btn" onclick="filtrar('gpu')"><i class="fas fa-tv"></i> Placas de Vídeo</button>
-                <button class="cat-btn" onclick="filtrar('perifericos')"><i class="fas fa-keyboard"></i> Periféricos</button>
-                <button class="cat-btn" onclick="filtrar('software')"><i class="fas fa-code"></i> Cursos e Soft</button>
-            </div>
-        </aside>
-
         <main class="content-area">
             <div class="hero-banner">
                 <div class="hero-content">
                     <span style="background:var(--ryzer-accent); padding:6px 12px; border-radius:6px; font-weight:bold; font-size:12px; margin-bottom:10px; display:inline-block;">OFERTA RELÂMPAGO</span>
                     <h1 style="font-size:38px; text-transform:uppercase; margin-bottom:10px; line-height:1.1;">Upgrade no Setup</h1>
-                    <p style="opacity:0.9;">Processadores Ryzen e Intel com preços imbatíveis.</p>
+                    <p style="opacity:0.9;">Processadores e Cursos com preços imbatíveis.</p>
                 </div>
                 <i class="fas fa-rocket hero-bg-icon"></i>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="font-size:22px;">Produtos em Destaque</h2>
-                <span style="font-size:14px; color:#666;">Ordenado por: Relevância</span>
+                <h2 style="font-size:22px;">Produtos Disponíveis</h2>
             </div>
             
             <div id="grid-produtos" class="products-grid">
@@ -117,11 +106,10 @@
                 <span style="color:var(--ryzer-green); font-weight:bold; font-size:12px;">VENDIDO POR RYZER</span>
                 <h1 id="det-titulo" style="font-size:28px; margin:10px 0; line-height: 1.2;">Titulo</h1>
                 <div class="det-price" id="det-valor" style="font-size:40px; color:var(--ryzer-green); font-weight:800;">R$ 0,00</div>
-                <p style="margin-bottom:20px;">À vista no PIX com <strong>15% OFF</strong>.</p>
                 
                 <div style="background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:30px;">
-                    <strong>Especificações / Entrega:</strong>
-                    <p id="det-desc" style="color:#555; margin-top:5px; font-size:14px;"></p>
+                    <strong>Informações:</strong>
+                    <p id="det-desc" style="color:#555; margin-top:5px; font-size:14px; white-space: pre-wrap;"></p>
                 </div>
 
                 <div style="display: flex; gap: 15px;">
@@ -134,7 +122,7 @@
         </div>
     </section>
 
-    <section id="sec-carrinho" class="main-container hidden fade-in">
+    <section id="sec-carrinho" class="main-container hidden fade-in" style="flex-direction: column;">
         <div class="cart-layout">
             <div class="cart-list-container">
                 <h2 style="margin-bottom: 20px;">Meu Carrinho</h2>
@@ -143,28 +131,13 @@
 
             <div class="cart-summary-container">
                 <div class="cart-summary-box">
-                    <h3 style="margin-bottom:20px;">Resumo do Pedido</h3>
-                    
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                        <span>Subtotal:</span>
-                        <span id="cart-subtotal">R$ 0,00</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                        <span>Frete:</span>
-                        <span style="color:green;">Grátis</span>
-                    </div>
-                    <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-                    
+                    <h3 style="margin-bottom:20px;">Resumo</h3>
                     <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                        <span style="font-weight:bold;">Total à vista:</span>
+                        <span style="font-weight:bold;">Total:</span>
                         <span id="cart-total" style="color:var(--ryzer-green); font-weight:800; font-size:22px;">R$ 0,00</span>
                     </div>
-
                     <button onclick="finalizarCompra()" class="btn-buy" style="width: 100%; height: 50px; font-size: 16px;">
                         Finalizar Compra
-                    </button>
-                    <button onclick="router('loja')" style="width: 100%; height: 40px; margin-top:10px; background:transparent; border:1px solid #ddd; border-radius:8px; color:#555;">
-                        Continuar Comprando
                     </button>
                 </div>
             </div>
@@ -172,7 +145,7 @@
     </section>
 
     <section id="sec-meus-pedidos" class="main-container hidden fade-in" style="flex-direction: column;">
-        <h2 style="margin-bottom: 20px;">Histórico de Compras</h2>
+        <h2 style="margin-bottom: 20px;">Meus Cursos / Produtos Comprados</h2>
         <div id="grid-meus-pedidos" class="products-grid"></div>
     </section>
 
@@ -182,7 +155,7 @@
             <p>Saldo Total de Vendas</p>
             <h1 id="dash-total" style="color:var(--ryzer-green); font-size:48px;">R$ 0,00</h1>
             <hr style="margin:25px 0; border:0; border-top:1px solid #eee;">
-            <h3>Histórico</h3>
+            <h3>Histórico de Transações</h3>
             <div id="lista-transacoes" style="margin-top:20px;"></div>
         </div>
     </section>
@@ -194,27 +167,12 @@
                 <label style="font-size:13px; font-weight:bold;">Título</label>
                 <input id="anun-titulo" class="apple-input" placeholder="Ex: Placa de Vídeo RTX 3060">
                 
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 1;">
-                        <label style="font-size:13px; font-weight:bold;">Preço (R$)</label>
-                        <input id="anun-valor" type="number" class="apple-input">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size:13px; font-weight:bold;">Categoria</label>
-                        <select id="anun-cat" class="apple-input" style="background:white;">
-                            <option value="hardware">Hardware</option>
-                            <option value="perifericos">Periféricos</option>
-                            <option value="processadores">Processadores</option>
-                            <option value="software">Software/Curso</option>
-                        </select>
-                    </div>
-                </div>
-
-                <label style="font-size:13px; font-weight:bold;">Imagem (URL)</label>
-                <input id="anun-img" class="apple-input" placeholder="https://...">
+                <label style="font-size:13px; font-weight:bold;">Preço (R$)</label>
+                <input id="anun-valor" type="number" class="apple-input">
                 
-                <label style="font-size:13px; font-weight:bold;">Dados de Entrega (Secreto)</label>
-                <textarea id="anun-conteudo" class="apple-input" style="height: 100px; padding-top: 15px;"></textarea>
+                <label style="font-size:13px; font-weight:bold;">Conteúdo Digital / Dados de Entrega</label>
+                <textarea id="anun-conteudo" class="apple-input" style="height: 100px; padding-top: 15px;" placeholder="Link do Drive, código de rastreio, etc..."></textarea>
+                <small style="color: #888;">Só será revelado ao comprador após o pagamento.</small>
             </div>
             
             <button onclick="publicarAnuncio()" class="btn-auth">Publicar Oferta</button>
@@ -222,6 +180,6 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
