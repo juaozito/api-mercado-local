@@ -28,7 +28,7 @@ Isolamento de ambiente e dependências*
 
 
 
-***✒️ Desenvolvedor***
+***✒️ Desenvolvedores***
 
 João Lucas — GitHub: juaozito
-
+João Neto - GitHub: Netiprogrammer
