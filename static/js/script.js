@@ -1,7 +1,7 @@
 /**
  * RYZER SCRIPT - INTEGRAÇÃO COM BACKEND PYTHON
  */
-const API_BASE = 'http://127.0.0.1:8000'; // Endereço do seu FastAPI
+const API_BASE = ''; // Endereço do seu FastAPI
 
 // --- ROTEADOR ---
 function router(tela) {
