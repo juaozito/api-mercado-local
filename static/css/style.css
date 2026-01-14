@@ -1,128 +1,243 @@
-/* =========================================================
-   BLOCO 1: CONFIGURAÇÕES GERAIS (BODY & CONTAINER)
-   ========================================================= */
+/* --- CONFIGURAÇÕES GLOBAIS --- */
+:root {
+    --ryzer-green: #00bf63;
+    --ryzer-dark: #121212;
+    --ryzer-accent: #ff6500; 
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --text-main: #1c1c1e;
+    --text-muted: #8e8e93;
+    --shadow-card: 0 4px 20px rgba(0,0,0,0.06);
+    --shadow-hover: 0 12px 30px rgba(0,0,0,0.15);
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-stack); -webkit-font-smoothing: antialiased; }
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6; /* Tom de cinza muito claro, cansa menos a vista */
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    overflow-x: hidden; /* Evita rolagem lateral no mobile */
 }
 
-/* O Container centraliza o conteúdo e dá o efeito de "folha de papel" */
-.container {
-    width: 90%;
-    max-width: 1000px;
-    margin-top: 50px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Sombra suave para dar profundidade */
+.hidden { display: none !important; }
+
+/* Animação suave de entrada */
+.fade-in { animation: fadeIn 0.4s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- HEADER / NAVBAR (ESTILO KABUM/AMAZON) --- */
+nav {
+    position: fixed; top: 0; width: 100%; height: 75px;
+    background: var(--ryzer-dark); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-h1, h2 { 
-    color: #333; 
+.nav-container {
+    width: 100%; max-width: 1280px; padding: 0 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 20px;
 }
 
-/* =========================================================
-   BLOCO 2: DASHBOARD - CARTÕES DE ESTATÍSTICAS
-   ========================================================= */
-/* Grade que organiza os cards (Total de Vendas, Saldo, etc) lateralmente */
-.stats-grid {
-    display: grid;
-    /* Ajusta automaticamente a quantidade de colunas conforme o tamanho da tela */
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+.logo {
+    font-size: 26px; font-weight: 800; color: white;
+    text-transform: uppercase; letter-spacing: -0.5px; text-decoration: none;
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.logo i { color: var(--ryzer-green); }
+
+.search-bar { flex: 1; display: flex; max-width: 550px; position: relative; }
+.search-bar input {
+    width: 100%; padding: 12px 15px; border-radius: 6px 0 0 6px; 
+    border: none; outline: none; font-size: 15px;
+}
+.search-bar button {
+    background: var(--ryzer-green); color: white; border: none;
+    padding: 0 20px; border-radius: 0 6px 6px 0; font-weight: bold; cursor: pointer;
+    transition: background 0.2s;
+}
+.search-bar button:hover { background: #00994d; }
+
+.user-menu { display: flex; gap: 25px; align-items: center; }
+.menu-item { 
+    color: white; text-decoration: none; font-size: 12px; text-align: center; 
+    cursor: pointer; opacity: 0.9; transition: transform 0.2s, color 0.2s; 
+    position: relative; display: flex; flex-direction: column; align-items: center;
+}
+.menu-item:hover { color: var(--ryzer-green); transform: translateY(-2px); opacity: 1; }
+.menu-item i { font-size: 20px; margin-bottom: 4px; }
+
+.cart-count {
+    position: absolute; top: -6px; right: -5px;
+    background: var(--ryzer-accent); color: white;
+    font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold;
+    border: 2px solid var(--ryzer-dark);
 }
 
-.card {
-    background: #eef2f3;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    border: 1px solid #dcdde1;
+/* Botão Mobile (Hambúrguer) */
+.mobile-toggle { display: none; color: white; font-size: 24px; cursor: pointer; }
+
+/* --- LOGIN APPLE STYLE (INTACTO) --- */
+.auth-wrapper {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; padding: 20px;
+}
+.auth-box {
+    background: white; width: 100%; max-width: 420px;
+    padding: 45px 35px; border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08); text-align: center;
+}
+.apple-input {
+    width: 100%; height: 54px; padding: 0 16px; margin-bottom: 15px;
+    border: 1px solid #d1d1d6; border-radius: 12px; font-size: 17px;
+    background: #fcfcfc; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.apple-input:focus { 
+    border-color: var(--ryzer-green); background: white; 
+    box-shadow: 0 0 0 4px rgba(0, 191, 99, 0.15); outline: none;
+}
+.btn-auth {
+    width: 100%; height: 52px; background: var(--ryzer-green);
+    color: white; border: none; border-radius: 26px;
+    font-size: 17px; font-weight: 600; margin-top: 15px;
+    cursor: pointer; transition: 0.3s;
+}
+.btn-auth:hover { background: #00a352; transform: scale(1.02); box-shadow: 0 5px 15px rgba(0, 191, 99, 0.3); }
+
+/* --- LOJA & LAYOUT --- */
+.main-container {
+    max-width: 1280px; margin: 95px auto 40px; padding: 0 20px;
+    display: flex; gap: 30px;
 }
 
-/* Destaque para os números dentro dos cards */
-.card h3 { 
-    margin: 0; 
-    color: #007bff; /* Azul padrão para números importantes */
-    font-size: 28px; 
+/* Sidebar Filtros */
+.sidebar { width: 260px; flex-shrink: 0; display: block; }
+.filter-box { 
+    background: white; padding: 25px; border-radius: 12px; 
+    box-shadow: var(--shadow-card); position: sticky; top: 95px; 
+}
+.cat-btn {
+    display: block; width: 100%; text-align: left; padding: 10px 15px;
+    background: none; border: none; color: var(--text-muted); 
+    font-size: 15px; border-radius: 8px; margin-bottom: 5px; cursor: pointer;
+    transition: 0.2s;
+}
+.cat-btn:hover, .cat-btn.active { 
+    background: #f0fdf4; color: var(--ryzer-green); font-weight: 600; 
 }
 
-/* =========================================================
-   BLOCO 3: TABELAS DE DADOS (CURSOS E VENDAS)
-   ========================================================= */
-table {
-    width: 100%;
-    border-collapse: collapse; /* Remove espaços duplos entre as bordas */
-    margin-top: 20px;
+/* Vitrine */
+.content-area { flex: 1; min-width: 0; /* Previne overflow no grid */ }
+
+.hero-banner {
+    width: 100%; height: 300px; 
+    background: linear-gradient(120deg, #111 0%, #2a2a2a 100%);
+    border-radius: 16px; margin-bottom: 30px;
+    display: flex; align-items: center; padding: 40px; color: white;
+    position: relative; overflow: hidden; box-shadow: var(--shadow-card);
+}
+.hero-content { z-index: 2; max-width: 600px; }
+.hero-bg-icon { position: absolute; right: -30px; bottom: -50px; font-size: 280px; opacity: 0.05; color: white; transform: rotate(-15deg); }
+
+.products-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap: 25px;
 }
 
-table th {
-    background-color: #f8f9fa;
-    color: #555;
-    text-transform: uppercase;
-    font-size: 14px;
+.product-card {
+    background: white; border-radius: 12px; padding: 20px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid transparent; display: flex; flex-direction: column;
+    position: relative;
+}
+.product-card:hover { 
+    border-color: var(--ryzer-green); box-shadow: var(--shadow-hover); 
+    transform: translateY(-5px); 
 }
 
-table th, table td {
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
+.prod-img-container {
+    width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 15px;
+}
+.prod-img { max-width: 100%; max-height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+
+.prod-title { 
+    font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--text-main);
+    height: 42px; overflow: hidden; margin-bottom: 8px;
+}
+.prod-price { font-size: 24px; font-weight: 800; color: var(--ryzer-green); margin-bottom: 5px; }
+.btn-buy {
+    width: 100%; padding: 12px; background: var(--ryzer-green); color: white;
+    border: none; border-radius: 8px; font-weight: bold; 
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; margin-top: auto; transition: 0.2s;
+}
+.btn-buy:hover { background: #008f45; box-shadow: 0 4px 12px rgba(0, 191, 99, 0.3); }
+
+/* --- PÁGINAS INTERNAS (Detalhes, Carrinho) --- */
+.details-wrapper { 
+    background: white; padding: 40px; border-radius: 16px; 
+    display: flex; gap: 50px; box-shadow: var(--shadow-card); 
+}
+.det-img-box { flex: 1; display: flex; justify-content: center; align-items: center; border: 1px solid #eee; border-radius: 12px; padding: 20px; }
+.det-info-box { flex: 1; }
+
+/* Layout de Carrinho Estilo KaBuM (Lista Esquerda, Resumo Direita) */
+.cart-layout {
+    display: flex; gap: 30px; width: 100%;
+}
+.cart-list-container { flex: 1; }
+.cart-summary-container { width: 320px; flex-shrink: 0; }
+
+.cart-item { 
+    background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; 
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.cart-summary-box {
+    background: white; padding: 25px; border-radius: 12px;
+    box-shadow: var(--shadow-card); position: sticky; top: 95px;
 }
 
-/* Efeito de destaque ao passar o mouse na linha da tabela */
-table tr:hover {
-    background-color: #f1f2f6;
+/* --- TOAST --- */
+#toast-box { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { 
+    background: white; padding: 15px 25px; border-radius: 8px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-left: 5px solid #333;
+    display: flex; align-items: center; gap: 12px; font-weight: 500;
+    animation: slideInRight 0.3s ease-out;
+}
+.toast.success { border-color: var(--ryzer-green); }
+.toast.error { border-color: #ff3b30; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* --- RESPONSIVIDADE (O SEGREDO PARA CELULAR) --- */
+@media (max-width: 900px) {
+    .sidebar { display: none; } /* Esconde sidebar em tablets */
+    .details-wrapper { flex-direction: column; }
+    .cart-layout { flex-direction: column; }
+    .cart-summary-container { width: 100%; position: static; }
+    .nav-container { padding: 0 15px; }
 }
 
-/* =========================================================
-   BLOCO 4: STATUS E CORES DINÂMICAS
-   ========================================================= */
-/* Classes aplicadas via JavaScript dependendo do status do projeto */
-.status-finalizado { 
-    color: #2ecc71; /* Verde */
-    font-weight: bold; 
-}
-
-.status-pendente { 
-    color: #f39c12; /* Laranja/Amarelo */
-    font-weight: bold; 
-}
-
-.status-aberto { 
-    color: #3498db; /* Azul */
-    font-weight: bold; 
-}
-
-/* =========================================================
-   BLOCO 5: BOTÕES E INTERAÇÃO
-   ========================================================= */
-button.logout {
-    background: #ff4757; /* Vermelho vibrante */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    float: right;
-    transition: background 0.3s;
-}
-
-button.logout:hover {
-    background: #e84118; /* Vermelho mais escuro no hover */
-}
-
-/* Ajuste para links dentro da tabela (Acessar Conteúdo) */
-table a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-table a:hover {
-    text-decoration: underline;
+@media (max-width: 768px) {
+    .mobile-toggle { display: block; }
+    .user-menu {
+        display: none; /* Esconde menu padrão */
+        position: absolute; top: 75px; left: 0; width: 100%;
+        background: var(--ryzer-dark); flex-direction: column;
+        padding: 20px; gap: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .user-menu.active { display: flex; } /* Classe JS para abrir */
+    
+    .search-bar { display: none; } /* Simplifica header no mobile */
+    .products-grid { grid-template-columns: 1fr 1fr; gap: 15px; } /* 2 Colunas no celular */
+    .hero-banner { height: 200px; padding: 20px; }
+    .hero-content h1 { font-size: 24px; }
+    .auth-box { padding: 30px 20px; }
+    
+    .cart-item { flex-direction: column; text-align: center; gap: 15px; }
 }
