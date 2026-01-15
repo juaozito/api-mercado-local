@@ -3,7 +3,7 @@
  */
 
 // CONFIGURAÇÃO CENTRAL DA API (Aponta sempre para o Python rodando)
-const API_BASE = ''; 
+const API_BASE = 'https://api-mercado-local.onrender.com'; 
 
 // --- 1. SISTEMA DE ROTAS (Navegação sem recarregar) ---
 function router(tela) {
