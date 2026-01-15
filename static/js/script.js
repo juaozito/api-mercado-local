@@ -1,29 +1,7 @@
-/** RYZER SCRIPT v3 - PRO DESIGN **/
-const API_BASE = '';
+/** RYZER SCRIPT V4 - INTEGRAÇÃO VISUAL PRO **/
+const API_BASE = ''; // Usa a mesma origem (127.0.0.1:8000)
 
-// --- ROTAS ---
-function router(tela) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(`sec-${tela}`).classList.remove('hidden');
-    
-    const uid = localStorage.getItem('usuario_id');
-    const nav = document.getElementById('navbar');
-    
-    if (uid) {
-        nav.classList.remove('hidden');
-        updateBadge();
-        if(tela === 'loja') carregarLoja();
-        if(tela === 'dashboard') carregarDashboard();
-        if(tela === 'carrinho') renderCarrinho();
-        if(tela === 'meus-pedidos') carregarPedidos();
-    } else {
-        nav.classList.add('hidden');
-        if(tela !== 'login' && tela !== 'cadastro') router('login');
-    }
-}
-window.onload = () => localStorage.getItem('usuario_id') ? router('loja') : router('login');
-
-// --- UX ---
+// --- UTILITÁRIOS ---
 function toast(msg, type='success') {
     const box = document.getElementById('toast-box');
     const div = document.createElement('div');
@@ -32,6 +10,42 @@ function toast(msg, type='success') {
     box.appendChild(div);
     setTimeout(() => div.remove(), 3000);
 }
+
+function getImagemProduto(titulo) {
+    // Truque para mostrar imagens "reais" baseadas no nome
+    const t = titulo.toLowerCase();
+    if(t.includes('rtx') || t.includes('gtx') || t.includes('placa')) return 'https://placehold.co/600x400/111/00bf63?text=GPU+Gaming';
+    if(t.includes('mouse')) return 'https://placehold.co/600x400/111/ffffff?text=Mouse+Gamer';
+    if(t.includes('teclado')) return 'https://placehold.co/600x400/111/ffffff?text=Teclado+Mecânico';
+    if(t.includes('monitor')) return 'https://placehold.co/600x400/111/ffffff?text=Monitor+144hz';
+    if(t.includes('processador') || t.includes('ryzen') || t.includes('intel')) return 'https://placehold.co/600x400/111/ff6500?text=CPU+Processor';
+    if(t.includes('curso') || t.includes('python') || t.includes('java')) return 'https://placehold.co/600x400/00bf63/ffffff?text=Curso+Dev';
+    return `https://placehold.co/600x400/f0f0f0/333?text=${encodeURIComponent(titulo)}`;
+}
+
+// --- ROTEADOR ---
+function router(tela) {
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    const sec = document.getElementById(`sec-${tela}`);
+    if(sec) sec.classList.remove('hidden');
+
+    const uid = localStorage.getItem('usuario_id');
+    const nav = document.getElementById('navbar');
+
+    if (uid) {
+        nav.classList.remove('hidden');
+        updateBadge();
+        if(tela === 'loja') carregarLoja();
+        if(tela === 'carrinho') renderCarrinho();
+        if(tela === 'meus-pedidos') carregarPedidos();
+        if(tela === 'dashboard') carregarDashboard();
+        if(tela === 'login' || tela === 'cadastro') router('loja');
+    } else {
+        nav.classList.add('hidden');
+        if(tela !== 'login' && tela !== 'cadastro') router('login');
+    }
+}
+window.onload = () => localStorage.getItem('usuario_id') ? router('loja') : router('login');
 
 // --- AUTH ---
 async function fazerLogin() {
@@ -48,7 +62,7 @@ async function fazerLogin() {
         const data = await res.json();
         if (res.ok) {
             localStorage.setItem('usuario_id', data.usuario_id);
-            toast("Bem-vindo de volta!");
+            toast("Bem-vindo à Ryzer!");
             router('loja');
         } else {
             msg.innerText = data.detail || "Erro no login";
@@ -60,14 +74,13 @@ async function cadastrar() {
     const nome = document.getElementById('cad-nome').value;
     const email = document.getElementById('cad-email').value;
     const senha = document.getElementById('cad-senha').value;
-    
     try {
         const res = await fetch(`${API_BASE}/usuarios/`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({nome, email, senha})
         });
         if (res.ok) { toast("Conta criada!"); router('login'); }
-        else toast("Erro ao cadastrar", "error");
+        else toast("Erro no cadastro", "error");
     } catch (e) { toast("Erro de conexão", "error"); }
 }
 
@@ -77,7 +90,7 @@ function logout() { localStorage.clear(); router('login'); }
 let cacheProds = [];
 async function carregarLoja() {
     const grid = document.getElementById('grid-produtos');
-    grid.innerHTML = "<p>Carregando...</p>";
+    grid.innerHTML = "<p>Carregando ofertas...</p>";
     try {
         const res = await fetch(`${API_BASE}/projetos/`);
         const data = await res.json();
@@ -93,22 +106,47 @@ function renderGrid(lista) {
     
     const filtrados = lista.filter(p => p.titulo.toLowerCase().includes(busca));
     
+    if(filtrados.length === 0) {
+        grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:40px;">Nenhum produto encontrado. Que tal <a onclick="router('anunciar')" style="color:blue;cursor:pointer">anunciar um?</a></p>`;
+        return;
+    }
+
     filtrados.forEach(p => {
-        // Imagem placeholder bonita com o nome do produto
-        const img = `https://placehold.co/400x300/121212/00bf63?text=${encodeURIComponent(p.titulo)}`;
+        const img = getImagemProduto(p.titulo);
         
         grid.innerHTML += `
             <div class="product-card">
-                <img src="${img}" class="prod-img">
+                <div class="prod-img-box" onclick="verDetalhes(${p.id})" style="cursor:pointer">
+                    <img src="${img}" class="prod-img">
+                </div>
                 <div class="prod-info">
                     <h3>${p.titulo}</h3>
-                    <div class="prod-price">R$ ${p.valor.toFixed(2)}</div>
+                    <span class="prod-price">R$ ${p.valor.toFixed(2)}</span>
+                    <span class="prod-pix">à vista no PIX</span>
                 </div>
-                <button onclick="addCart(${p.id})" class="btn-primary" style="height:40px; margin-top:10px;">Comprar</button>
+                <button onclick="addCart(${p.id})" class="btn-cart">
+                    <i class="fas fa-cart-plus"></i> Comprar
+                </button>
             </div>`;
     });
 }
 function buscarProduto() { renderGrid(cacheProds); }
+
+function verDetalhes(id) {
+    const p = cacheProds.find(i => i.id === id);
+    if(!p) return;
+    document.getElementById('det-img-container').innerHTML = `<img src="${getImagemProduto(p.titulo)}" style="max-width:100%; max-height:300px;">`;
+    document.getElementById('det-titulo').innerText = p.titulo;
+    document.getElementById('det-valor').innerText = `R$ ${p.valor.toFixed(2)}`;
+    document.getElementById('det-desc').innerText = `Vendedor ID: #${p.vendedor_id}\n\nGarantia Ryzer de 7 dias.\nEntrega digital imediata após confirmação do pagamento.`;
+    
+    const btn = document.getElementById('btn-add-cart-detail');
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    newBtn.onclick = () => { addCart(p.id); toast("Adicionado!"); };
+    
+    router('detalhes');
+}
 
 // --- CARRINHO ---
 function addCart(id) {
@@ -116,7 +154,7 @@ function addCart(id) {
     if(!cart.includes(id)) {
         cart.push(id);
         localStorage.setItem('ryzer_cart', JSON.stringify(cart));
-        toast("Adicionado ao carrinho");
+        toast("Produto no carrinho!");
         updateBadge();
     }
 }
@@ -131,6 +169,13 @@ function renderCarrinho() {
     lista.innerHTML = "";
     let total = 0;
     
+    if(cart.length === 0) { 
+        lista.innerHTML = "<div style='text-align:center; padding:40px; background:white; border-radius:8px;'>Seu carrinho está vazio.</div>"; 
+        document.getElementById('cart-total').innerText = "R$ 0,00";
+        document.getElementById('cart-subtotal').innerText = "R$ 0,00";
+        return; 
+    }
+
     if(cacheProds.length === 0) { carregarLoja().then(renderCarrinho); return; }
 
     cart.forEach((id, idx) => {
@@ -138,16 +183,21 @@ function renderCarrinho() {
         if(p) {
             total += p.valor;
             lista.innerHTML += `
-                <div class="stat-card" style="flex-direction:row; justify-content:space-between; align-items:center; margin-bottom:15px; padding:15px;">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <img src="https://placehold.co/50x50/111/00bf63" style="border-radius:6px;">
-                        <div><strong>${p.titulo}</strong><br><small>R$ ${p.valor.toFixed(2)}</small></div>
+                <div class="cart-item">
+                    <img src="${getImagemProduto(p.titulo)}">
+                    <div style="flex:1;">
+                        <strong style="font-size:16px;">${p.titulo}</strong><br>
+                        <small>Vendedor #${p.vendedor_id}</small>
                     </div>
-                    <button onclick="remCart(${idx})" style="color:red; border:none; background:none;">Remover</button>
+                    <div style="text-align:right;">
+                        <div style="font-weight:bold; color:var(--primary); font-size:18px;">R$ ${p.valor.toFixed(2)}</div>
+                        <small onclick="remCart(${idx})" style="color:red; cursor:pointer; text-decoration:underline;">Remover</small>
+                    </div>
                 </div>`;
         }
     });
     document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2)}`;
+    document.getElementById('cart-subtotal').innerText = `R$ ${total.toFixed(2)}`;
 }
 function remCart(idx) {
     let cart = JSON.parse(localStorage.getItem('ryzer_cart'));
@@ -169,11 +219,32 @@ async function finalizarCompra() {
         } catch(e) {}
     }
     if(codes.length > 0) {
-        alert(`Sucesso! Códigos: \n${codes.join('\n')}`);
+        alert(`Sucesso! Códigos de liberação: \n${codes.join('\n')}`);
         localStorage.setItem('ryzer_cart', JSON.stringify([]));
         updateBadge();
         router('meus-pedidos');
     }
+}
+
+// --- ANUNCIAR ---
+async function publicarAnuncio() {
+    const titulo = document.getElementById('anun-titulo').value;
+    const valor = document.getElementById('anun-valor').value;
+    const cont = document.getElementById('anun-conteudo').value;
+    const uid = localStorage.getItem('usuario_id');
+    
+    if(!titulo || !valor || !cont) return toast("Preencha todos os campos", "error");
+    
+    try {
+        const res = await fetch(`${API_BASE}/projetos/`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                titulo, valor: parseFloat(valor), conteudo_digital: cont, vendedor_id: parseInt(uid)
+            })
+        });
+        if(res.ok) { toast("Anúncio publicado!"); router('dashboard'); }
+        else toast("Erro ao publicar", "error");
+    } catch(e) {}
 }
 
 // --- DASHBOARD & PEDIDOS ---
@@ -192,10 +263,12 @@ async function carregarDashboard() {
         tbody.innerHTML = "";
         meus.forEach(p => {
             let acao = "";
-            let statusBadge = `<span class="badge pending">${p.status}</span>`;
-            if(p.status === 'finalizado') statusBadge = `<span class="badge paid">Pago</span>`;
+            let statusBadge = `<span class="badge" style="background:#eee; color:#555;">${p.status}</span>`;
+            if(p.status === 'pagamento_retido') statusBadge = `<span class="badge" style="background:#fff3cd; color:#856404;">Pendente</span>`;
+            if(p.status === 'finalizado') statusBadge = `<span class="badge" style="background:#d4edda; color:#155724;">Concluído</span>`;
+            
             if(p.status === 'pagamento_retido' && p.cliente_id == uid) {
-                acao = `<button onclick="liberar(${p.id})" style="padding:5px 10px; border:1px solid var(--primary); border-radius:4px; background:white; color:var(--primary);">Liberar</button>`;
+                acao = `<button onclick="liberar(${p.id})" style="padding:5px 10px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer;">Liberar Pagamento</button>`;
             }
             
             tbody.innerHTML += `
@@ -228,36 +301,20 @@ async function carregarPedidos() {
         const res = await fetch(`${API_BASE}/cliente/${uid}/meus-cursos`);
         const data = await res.json();
         grid.innerHTML = "";
+        if(data.length === 0) grid.innerHTML = "<p>Nenhuma compra ainda.</p>";
         data.forEach(p => {
             grid.innerHTML += `
                 <div class="product-card" style="border-top: 4px solid var(--primary);">
+                    <div class="prod-img-box" style="height:100px;">
+                        <img src="${getImagemProduto(p.titulo)}" class="prod-img">
+                    </div>
                     <div class="prod-info">
                         <h3>${p.titulo}</h3>
-                        <p style="font-size:13px; color:#555; background:#f4f4f4; padding:10px; margin-top:10px; border-radius:6px;">
-                            <strong>Entregue:</strong><br>${p.conteudo_digital}
+                        <p style="font-size:13px; background:#f4f4f4; padding:10px; border-radius:6px; margin-top:10px; word-break:break-all;">
+                            <strong>Entregue:</strong> ${p.conteudo_digital}
                         </p>
                     </div>
                 </div>`;
         });
-    } catch(e) {}
-}
-
-async function publicarAnuncio() {
-    const titulo = document.getElementById('anun-titulo').value;
-    const valor = document.getElementById('anun-valor').value;
-    const cont = document.getElementById('anun-conteudo').value;
-    const uid = localStorage.getItem('usuario_id');
-    
-    if(!titulo || !valor || !cont) return toast("Preencha tudo", "error");
-    
-    try {
-        const res = await fetch(`${API_BASE}/projetos/`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                titulo, valor: parseFloat(valor), conteudo_digital: cont, vendedor_id: parseInt(uid)
-            })
-        });
-        if(res.ok) { toast("Publicado!"); router('dashboard'); }
-        else toast("Erro ao publicar", "error");
     } catch(e) {}
 }
