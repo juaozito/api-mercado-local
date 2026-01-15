@@ -1,144 +1,604 @@
-/* --- RYZER DESIGN SYSTEM PRO --- */
+/* =========================================
+   1. VARIÁVEIS & RESET (DESIGN SYSTEM)
+   ========================================= */
 :root {
-    --primary: #00bf63;       /* Verde Ryzer (Ação) */
-    --primary-dark: #009e52;
-    --dark: #121212;          /* Header Preto (Estilo KaBuM) */
-    --bg-body: #f4f6f8;       /* Cinza claro moderno */
+    /* Paleta de Cores da Marca */
+    --primary: #00bf63;
+    --primary-hover: #009e52;
+    --primary-light: #e0f7ea;
+    
+    /* Cores de Interface (Dark/Light) */
+    --header-bg: #121212;
+    --body-bg: #f4f6f8;
     --card-bg: #ffffff;
-    --text: #2d2d2d;
-    --muted: #888888;
-    --border: #eef0f2;
-    --radius: 8px;            /* Bordas levemente arredondadas */
-    --shadow: 0 4px 15px rgba(0,0,0,0.05);
+    --sidebar-bg: #ffffff;
+    
+    /* Tipografia */
+    --text-main: #2d2d2d;
+    --text-muted: #888888;
+    --text-light: #ffffff;
+    
+    /* Cores de Status */
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --success: #28a745;
+    --info: #17a2b8;
+    --accent: #ff6500; /* Laranja Varejo */
+
+    /* Bordas e Sombras */
+    --border-color: #eef0f2;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 15px 40px rgba(0,0,0,0.12);
+    
+    /* Transições */
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-    background-color: var(--bg-body);
-    color: var(--text);
+    background-color: var(--body-bg);
+    color: var(--text-main);
     min-height: 100vh;
-    display: flex; flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    line-height: 1.6;
 }
 
+a { text-decoration: none; color: inherit; transition: var(--transition); }
+ul { list-style: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* Scrollbar Personalizada (Estilo Chrome/Edge) */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Utilitários */
 .hidden { display: none !important; }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-20 { margin-top: 20px; }
 
-/* --- NAVBAR ROBUSTA --- */
+/* =========================================
+   2. NAVBAR & HEADER (ESTILO PRO)
+   ========================================= */
 nav {
-    position: fixed; top: 0; width: 100%; height: 75px;
-    background: var(--dark); z-index: 1000;
-    display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-bottom: 3px solid var(--primary);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    background: var(--header-bg);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 3px solid var(--primary);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
+
 .nav-container {
-    width: 100%; max-width: 1280px; padding: 0 20px;
-    display: flex; justify-content: space-between; align-items: center; gap: 30px;
+    width: 100%;
+    max-width: 1300px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
 }
-.logo { font-size: 28px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: -1px; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-.logo i { color: var(--primary); }
 
-.search-bar { flex: 1; display: flex; max-width: 600px; position: relative; }
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.logo i { color: var(--primary); font-size: 24px; }
+
+/* Barra de Busca Central */
+.search-bar {
+    flex: 1;
+    display: flex;
+    max-width: 650px;
+    position: relative;
+}
+
 .search-bar input {
-    width: 100%; padding: 12px 15px; border-radius: 4px 0 0 4px; border: none; outline: none; font-size: 15px;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 6px 0 0 6px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    background: #fff;
 }
+
 .search-bar button {
-    background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; font-size: 16px;
+    background: var(--primary);
+    color: var(--text-light);
+    border: none;
+    padding: 0 30px;
+    border-radius: 0 6px 6px 0;
+    font-weight: 700;
+    font-size: 16px;
+    transition: background 0.2s;
 }
-.search-bar button:hover { background: var(--primary-dark); }
 
-.nav-icons { display: flex; gap: 25px; align-items: center; }
-.nav-item { color: #ddd; text-decoration: none; font-size: 13px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.2s; position: relative; }
-.nav-item:hover { color: var(--primary); }
-.nav-item i { font-size: 20px; margin-bottom: 4px; }
-.badge { position: absolute; top: -5px; right: -8px; background: #ff6500; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+.search-bar button:hover { background: var(--primary-hover); }
 
-/* --- LOGIN & CADASTRO (Centralizado) --- */
-.auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 90vh; padding: 20px; }
-.auth-box {
-    background: white; width: 100%; max-width: 420px; padding: 40px;
-    border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    text-align: center; border-top: 5px solid var(--primary);
+/* Ícones de Navegação */
+.nav-icons {
+    display: flex;
+    gap: 30px;
+    align-items: center;
 }
-.auth-box h1 { font-size: 24px; font-weight: 700; margin-bottom: 30px; color: var(--dark); }
 
-.input-field {
-    width: 100%; height: 50px; padding: 0 15px; margin-bottom: 15px;
-    border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background: #f9f9f9; transition: 0.2s;
+.nav-item {
+    color: #b0b0b0;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: color 0.2s;
 }
-.input-field:focus { border-color: var(--primary); background: white; outline: none; box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.1); }
 
-.btn-full {
-    width: 100%; height: 50px; background: var(--primary); color: white;
-    border: none; border-radius: 6px; font-size: 16px; font-weight: 700;
-    cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 10px;
+.nav-item:hover { color: var(--text-light); }
+.nav-item i { font-size: 22px; margin-bottom: 4px; color: var(--primary); transition: transform 0.2s; }
+.nav-item:hover i { transform: translateY(-3px); }
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 800;
+    border: 2px solid var(--header-bg);
 }
-.btn-full:hover { background: var(--primary-dark); transform: translateY(-2px); }
 
-/* --- LOJA (O GRID QUE FALTAVA) --- */
-.container { max-width: 1280px; margin: 100px auto 40px; padding: 0 20px; }
+.mobile-toggle { display: none; color: white; font-size: 24px; cursor: pointer; }
 
-/* Banner Hero */
+/* =========================================
+   3. LAYOUT GERAL & GRID
+   ========================================= */
+.container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 110px auto 60px; /* Margem topo compensa navbar fixa */
+    padding: 0 20px;
+}
+
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+}
+
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.content-area { flex: 1; min-width: 0; }
+
+/* Caixas de Conteúdo (Cards Brancos) */
+.content-box {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 30px;
+    height: fit-content;
+}
+
+/* Títulos de Seção */
+.section-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--header-bg);
+    margin-bottom: 25px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    bottom: 5px;
+    width: 5px;
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+/* =========================================
+   4. BANNER HERO (HOME)
+   ========================================= */
 .hero-banner {
-    width: 100%; height: 320px; 
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    border-radius: var(--radius); margin-bottom: 40px;
-    display: flex; align-items: center; padding: 50px; position: relative; overflow: hidden; color: white;
+    width: 100%;
+    height: 380px;
+    background: linear-gradient(120deg, #0b0b0b 0%, #2a2a2a 100%);
+    border-radius: var(--radius-md);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    box-shadow: var(--shadow-md);
 }
-.hero-content h2 { font-size: 42px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
-.hero-content p { font-size: 18px; max-width: 500px; opacity: 0.9; }
-.hero-img { position: absolute; right: 0; bottom: -20px; width: 500px; opacity: 0.2; transform: rotate(-10deg); }
 
-/* Grid de Produtos (Alinhamento Correto) */
-.section-title { font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 20px; border-left: 5px solid var(--primary); padding-left: 15px; }
+.hero-content { z-index: 2; max-width: 600px; animation: slideRight 0.8s ease-out; }
+.hero-content h1 { font-size: 52px; font-weight: 900; line-height: 1.1; margin-bottom: 15px; text-transform: uppercase; }
+.hero-content p { font-size: 20px; opacity: 0.9; margin-bottom: 20px; font-weight: 300; }
 
+.hero-tag {
+    background: var(--accent);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.hero-bg-icon {
+    position: absolute;
+    right: -40px;
+    bottom: -60px;
+    font-size: 350px;
+    opacity: 0.05;
+    color: white;
+    transform: rotate(-15deg);
+}
+
+/* =========================================
+   5. PRODUTOS & VITRINE (GRID)
+   ========================================= */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* CRUCIAL: Grid Responsivo */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 25px;
 }
 
 .product-card {
-    background: white; border-radius: var(--radius); padding: 15px;
-    box-shadow: var(--shadow); transition: all 0.3s ease;
-    display: flex; flex-direction: column; justify-content: space-between;
-    position: relative; border: 1px solid transparent; height: 100%;
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
 }
-.product-card:hover { border-color: var(--primary); box-shadow: 0 15px 30px rgba(0,0,0,0.1); transform: translateY(-5px); }
 
-.prod-img-box { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-.prod-img { max-width: 100%; max-height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
 
-.prod-info h3 { font-size: 14px; color: #555; height: 40px; overflow: hidden; margin-bottom: 10px; line-height: 1.4; }
-.prod-price { font-size: 24px; font-weight: 800; color: var(--primary); display: block; }
-.prod-pix { font-size: 12px; color: #888; margin-bottom: 15px; display: block; }
+.prod-img-box {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.prod-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    transition: transform 0.3s;
+}
+
+.product-card:hover .prod-img { transform: scale(1.08); }
+
+.prod-info h3 {
+    font-size: 15px;
+    color: var(--text-main);
+    font-weight: 600;
+    line-height: 1.4;
+    height: 42px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.old-price {
+    font-size: 13px;
+    color: #999;
+    text-decoration: line-through;
+    margin-bottom: 2px;
+}
+
+.prod-price {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary);
+    display: block;
+}
+
+.pix-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 15px;
+    display: block;
+}
 
 .btn-cart {
-    width: 100%; padding: 10px; background: var(--primary); color: white; border: none;
-    border-radius: 4px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s;
 }
+
 .btn-cart:hover { background: var(--primary-dark); }
 
-/* --- LAYOUT CARRINHO & DASHBOARD --- */
-.split-layout { display: flex; gap: 30px; }
-.left-col { flex: 1; }
-.right-col { width: 320px; flex-shrink: 0; }
+/* =========================================
+   6. LOGIN & CADASTRO (APPLE CLEAN)
+   ========================================= */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    padding: 20px;
+    background: var(--body-bg);
+}
 
-.content-box { background: white; border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.auth-box {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    padding: 50px 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
 
-.cart-item { display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
-.cart-item img { width: 70px; height: 70px; object-fit: contain; }
+/* Faixa verde no topo do login */
+.auth-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 6px;
+    background: var(--primary);
+}
 
-.summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; }
-.summary-total { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+.auth-box h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--header-bg);
+}
 
-/* TOAST */
-#toast-box { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-.toast { background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-left: 5px solid #333; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s; }
+.auth-box p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 35px;
+}
+
+/* Inputs Bonitos */
+.input-group { margin-bottom: 20px; text-align: left; }
+.input-label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #444; }
+
+.input-field, .apple-input {
+    width: 100%;
+    height: 54px;
+    padding: 0 18px;
+    border: 1px solid #d1d1d6;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    background: #fdfdfd;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus, .apple-input:focus {
+    border-color: var(--primary);
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 191, 99, 0.15);
+}
+
+.btn-full, .btn-auth {
+    width: 100%;
+    height: 54px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.btn-full:hover, .btn-auth:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 99, 0.3);
+}
+
+/* =========================================
+   7. CARRINHO & TABELAS
+   ========================================= */
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.cart-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.cart-item img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 15px;
+    color: #555;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-top: 25px;
+    border-top: 2px solid var(--border-color);
+    padding-top: 20px;
+}
+
+/* Tabela de Dashboard */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 15px; background: #f8f8f8; font-size: 13px; text-transform: uppercase; color: #666; font-weight: 700; }
+td { padding: 15px; border-bottom: 1px solid #eee; font-size: 15px; vertical-align: middle; }
+
+/* =========================================
+   8. DETALHES DO PRODUTO (MODAL)
+   ========================================= */
+.details-wrapper {
+    display: flex;
+    gap: 50px;
+    background: white;
+    padding: 40px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.det-img-box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 30px;
+}
+
+.det-info-box { flex: 1; }
+
+.det-price {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 20px 0 5px 0;
+}
+
+/* =========================================
+   9. ANIMAÇÕES & TOAST
+   ========================================= */
+@keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+
+#toast-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    background: white;
+    padding: 18px 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    border-left: 6px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+    min-width: 300px;
+    animation: slideRight 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
 .toast.success { border-color: var(--primary); }
-.toast.error { border-color: #ff3b30; }
-@keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+.toast.error { border-color: var(--danger); }
 
-/* RESPONSIVO */
-@media(max-width: 900px) { .split-layout { flex-direction: column; } .right-col { width: 100%; } }
+/* =========================================
+   10. RESPONSIVIDADE
+   ========================================= */
+@media (max-width: 992px) {
+    .split-layout { grid-template-columns: 1fr; }
+    .hero-banner { height: 280px; padding: 30px; }
+    .hero-content h1 { font-size: 36px; }
+    .details-wrapper { flex-direction: column; }
+}
+
+@media (max-width: 768px) {
+    .nav-container { padding: 0 15px; }
+    .user-menu, .search-bar { display: none; } /* Esconde em mobile por enquanto */
+    .mobile-toggle { display: block; }
+    
+    .product-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+    
+    .hero-banner { height: auto; text-align: center; }
+    .hero-img { display: none; } /* Esconde imagem decorativa no mobile */
+    
+    .auth-box { padding: 30px 20px; }
+}
