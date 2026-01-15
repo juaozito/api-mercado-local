@@ -3,7 +3,7 @@
  */
 
 // CONFIGURAÇÃO CENTRAL DA API (Aponta sempre para o Python rodando)
-const API_BASE = 'http://127.0.0.1:8000'; 
+const API_BASE = ''; 
 
 // --- 1. SISTEMA DE ROTAS (Navegação sem recarregar) ---
 function router(tela) {
