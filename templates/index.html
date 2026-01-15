@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryzer | Mercado Gamer</title>
+    <title>Ryzer | Hardware e Games</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -14,128 +14,143 @@
     <nav id="navbar" class="hidden">
         <div class="nav-container">
             <a href="#" class="logo" onclick="router('loja')">
-                <i class="fas fa-bolt"></i> Ryzer
+                <i class="fas fa-bolt"></i> RYZER
             </a>
-            <div class="nav-links">
-                <a href="#" onclick="router('loja')"><i class="fas fa-store"></i> Loja</a>
-                <a href="#" onclick="router('dashboard')"><i class="fas fa-chart-line"></i> Painel</a>
-                <a href="#" onclick="router('meus-pedidos')"><i class="fas fa-box"></i> Pedidos</a>
-                <a href="#" onclick="router('carrinho')"><i class="fas fa-shopping-cart"></i> Carrinho <span id="cart-badge" class="badge open" style="margin-left:5px">0</span></a>
-                <a href="#" onclick="router('anunciar')" style="color:var(--primary); font-weight:bold;">+ Vender</a>
-                <a href="#" onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></a>
+            
+            <div class="search-bar">
+                <input type="text" id="campo-busca" placeholder="Busque por RTX 4060, Processadores..." onkeyup="buscarProduto()">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="nav-icons">
+                <a class="nav-item" onclick="router('anunciar')">
+                    <i class="fas fa-tag"></i> <span>Vender</span>
+                </a>
+                <a class="nav-item" onclick="router('meus-pedidos')">
+                    <i class="fas fa-box-open"></i> <span>Pedidos</span>
+                </a>
+                <a class="nav-item" onclick="router('carrinho')">
+                    <i class="fas fa-shopping-cart"></i> <span>Carrinho</span>
+                    <span id="cart-badge" class="badge">0</span>
+                </a>
+                <a class="nav-item" onclick="router('dashboard')">
+                    <i class="fas fa-chart-bar"></i> <span>Painel</span>
+                </a>
+                <a class="nav-item" onclick="logout()" style="color:#ff5555">
+                    <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+                </a>
             </div>
         </div>
     </nav>
 
     <section id="sec-login" class="auth-wrapper fade-in">
         <div class="auth-box">
-            <i class="fas fa-bolt" style="font-size: 48px; color: var(--primary); margin-bottom: 20px;"></i>
-            <h1 class="auth-title">Bem-vindo de volta</h1>
-            <p class="auth-subtitle">Acesse sua conta Ryzer para continuar.</p>
-            
-            <div class="input-group">
-                <label class="input-label">E-mail</label>
-                <input type="email" id="login-email" class="form-input" placeholder="seu@email.com">
+            <i class="fas fa-bolt" style="font-size: 50px; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Acesso ao Cliente</h1>
+            <input type="email" id="login-email" class="input-field" placeholder="Digite seu e-mail">
+            <input type="password" id="login-senha" class="input-field" placeholder="Sua senha">
+            <button onclick="fazerLogin()" class="btn-full">Entrar</button>
+            <div style="margin-top:20px; font-size:14px;">
+                Novo por aqui? <a onclick="router('cadastro')" style="color:#007aff; cursor:pointer; font-weight:bold;">Crie sua conta</a>
             </div>
-            <div class="input-group">
-                <label class="input-label">Senha</label>
-                <input type="password" id="login-senha" class="form-input" placeholder="••••••••">
-            </div>
-            
-            <button onclick="fazerLogin()" class="btn-primary">Entrar</button>
-            <button onclick="router('cadastro')" class="btn-secondary">Não tem conta? Crie agora</button>
-            <p id="msg-login" style="margin-top:15px; font-size:14px; color:#ff3b30;"></p>
+            <p id="msg-login" style="margin-top:15px; color:red; font-size:13px;"></p>
         </div>
     </section>
 
     <section id="sec-cadastro" class="auth-wrapper hidden fade-in">
         <div class="auth-box">
-            <h1 class="auth-title">Crie sua Conta</h1>
-            <p class="auth-subtitle">Junte-se ao mercado gamer.</p>
-            
-            <div class="input-group">
-                <label class="input-label">Nome Completo</label>
-                <input type="text" id="cad-nome" class="form-input" placeholder="Seu Nome">
+            <h1>Criar Conta Ryzer</h1>
+            <input type="text" id="cad-nome" class="input-field" placeholder="Nome Completo">
+            <input type="email" id="cad-email" class="input-field" placeholder="E-mail">
+            <input type="password" id="cad-senha" class="input-field" placeholder="Senha">
+            <button onclick="cadastrar()" class="btn-full">Cadastrar</button>
+            <div style="margin-top:20px;">
+                <a onclick="router('login')" style="color:#007aff; cursor:pointer;">Voltar ao Login</a>
             </div>
-            <div class="input-group">
-                <label class="input-label">E-mail</label>
-                <input type="email" id="cad-email" class="form-input" placeholder="seu@email.com">
-            </div>
-            <div class="input-group">
-                <label class="input-label">Senha</label>
-                <input type="password" id="cad-senha" class="form-input" placeholder="Crie uma senha forte">
-            </div>
-            
-            <button onclick="cadastrar()" class="btn-primary">Criar Conta</button>
-            <button onclick="router('login')" class="btn-secondary">Voltar ao Login</button>
         </div>
     </section>
 
-    <section id="sec-loja" class="page-container hidden fade-in">
-        <div class="page-header">
-            <div>
-                <h2 class="page-title">Vitrine Ryzer</h2>
-                <p style="color:var(--muted)">As melhores ofertas da comunidade.</p>
+    <section id="sec-loja" class="container hidden fade-in">
+        <div class="hero-banner">
+            <div class="hero-content">
+                <span style="background:#ff6500; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:12px;">RYZER WEEK</span>
+                <h2>Setup dos Sonhos</h2>
+                <p>Placas de vídeo, processadores e periféricos com até 60% OFF no PIX.</p>
             </div>
-            <div class="input-group" style="margin:0; width: 300px;">
-                <input type="text" id="campo-busca" class="form-input" placeholder="Buscar produtos..." onkeyup="buscarProduto()">
-            </div>
+            <i class="fas fa-microchip hero-img"></i>
         </div>
-        
-        <div id="grid-produtos" class="products-grid">
+
+        <h2 class="section-title">Ofertas em Destaque</h2>
+        <div id="grid-produtos" class="product-grid">
             </div>
     </section>
 
-    <section id="sec-dashboard" class="page-container hidden fade-in">
-        <h2 class="page-title" style="margin-bottom:20px;">Painel de Vendas</h2>
-        
-        <div class="dash-stats">
-            <div class="stat-card">
-                <span class="stat-label">Total Vendido</span>
-                <span id="dash-total" class="stat-value green">R$ 0,00</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Status da Conta</span>
-                <span class="stat-value" style="font-size:18px; margin-top:10px;">✅ Ativa</span>
-            </div>
-        </div>
-
-        <h3 style="margin: 30px 0 15px 0;">Transações Recentes</h3>
-        <div style="overflow-x:auto;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Produto</th>
-                        <th>Tipo</th>
-                        <th>Valor</th>
-                        <th>Status</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody id="lista-transacoes">
-                    </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section id="sec-anunciar" class="page-container hidden fade-in" style="max-width: 800px;">
-        <div class="auth-box" style="width:100%; max-width:100%; text-align:left;">
-            <h2 class="auth-title">Novo Anúncio</h2>
-            <p class="auth-subtitle">Preencha os dados do seu produto.</p>
-            
-            <div class="input-group">
-                <label class="input-label">Título do Produto</label>
-                <input id="anun-titulo" class="form-input" placeholder="Ex: Placa de Vídeo RTX 3060">
-            </div>
-
-            <div class="form-grid">
-                <div class="input-group">
-                    <label class="input-label">Preço (R$)</label>
-                    <input id="anun-valor" type="number" class="form-input" placeholder="0.00">
+    <section id="sec-carrinho" class="container hidden fade-in">
+        <h2 class="section-title">Meu Carrinho</h2>
+        <div class="split-layout">
+            <div class="left-col" id="lista-carrinho">
                 </div>
-                <div class="input-group">
-                    <label class="input-label">Categoria</label>
-                    <select class="form-input">
+            <div class="right-col">
+                <div class="content-box">
+                    <h3>Resumo do Pedido</h3>
+                    <div class="summary-row" style="margin-top:20px;">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frete</span>
+                        <span style="color:#28a745;">Grátis</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total à vista</span>
+                        <span id="cart-total">R$ 0,00</span>
+                    </div>
+                    <button onclick="finalizarCompra()" class="btn-full">Finalizar Compra</button>
+                    <button onclick="router('loja')" style="width:100%; background:none; border:1px solid #ccc; padding:10px; margin-top:10px; border-radius:6px; cursor:pointer;">Continuar Comprando</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-meus-pedidos" class="container hidden fade-in">
+        <h2 class="section-title">Minha Biblioteca</h2>
+        <div id="grid-meus-pedidos" class="product-grid"></div>
+    </section>
+
+    <section id="sec-dashboard" class="container hidden fade-in">
+        <h2 class="section-title">Painel de Vendas</h2>
+        <div class="split-layout">
+            <div class="left-col">
+                <div class="content-box">
+                    <h3>Histórico de Transações</h3>
+                    <div id="lista-transacoes" style="margin-top:20px;"></div>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="content-box" style="text-align:center;">
+                    <span style="font-size:14px; color:#888; text-transform:uppercase;">Saldo Total</span>
+                    <h1 id="dash-total" style="font-size:42px; color:var(--primary); margin:10px 0;">R$ 0,00</h1>
+                    <button onclick="router('anunciar')" class="btn-full">Novo Anúncio</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-anunciar" class="container hidden fade-in" style="max-width: 800px;">
+        <div class="content-box">
+            <h2 style="margin-bottom:20px;">Publicar Novo Produto</h2>
+            
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Título do Produto</label>
+            <input id="anun-titulo" class="input-field" placeholder="Ex: Placa de Vídeo RTX 4060 Ti 8GB">
+
+            <div style="display:flex; gap:20px;">
+                <div style="flex:1">
+                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Preço (R$)</label>
+                    <input id="anun-valor" type="number" class="input-field" placeholder="0.00">
+                </div>
+                <div style="flex:1">
+                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Categoria</label>
+                    <select class="input-field">
                         <option>Hardware</option>
                         <option>Software</option>
                         <option>Periféricos</option>
@@ -143,38 +158,34 @@
                 </div>
             </div>
 
-            <div class="input-group">
-                <label class="input-label">Conteúdo da Entrega (Segredo)</label>
-                <textarea id="anun-conteudo" class="form-input" rows="4" placeholder="Link do drive, código de ativação ou rastreio..."></textarea>
-                <small style="color:var(--muted)">Isso só será revelado ao comprador após o pagamento.</small>
-            </div>
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Conteúdo da Entrega (Link/Chave)</label>
+            <textarea id="anun-conteudo" class="input-field" style="height:100px; padding-top:15px;" placeholder="Este conteúdo só será revelado ao comprador após o pagamento..."></textarea>
 
-            <button onclick="publicarAnuncio()" class="btn-primary">Publicar Agora</button>
-            <button onclick="router('loja')" class="btn-secondary">Cancelar</button>
-        </div>
-    </section>
-
-    <section id="sec-carrinho" class="page-container hidden fade-in">
-        <h2 class="page-title">Carrinho de Compras</h2>
-        
-        <div style="display:flex; gap:30px; margin-top:20px; flex-wrap:wrap;">
-            <div id="lista-carrinho" style="flex:1;">
-                </div>
-            
-            <div class="cart-total-box">
-                <span class="stat-label">Resumo do Pedido</span>
-                <div style="margin:20px 0; font-size:18px; display:flex; justify-content:space-between;">
-                    <span>Total:</span>
-                    <strong id="cart-total" style="color:var(--primary)">R$ 0,00</strong>
-                </div>
-                <button onclick="finalizarCompra()" class="btn-primary">Finalizar Compra</button>
+            <div style="display:flex; gap:15px; margin-top:20px;">
+                <button onclick="publicarAnuncio()" class="btn-full">Publicar Agora</button>
+                <button onclick="router('loja')" style="width:100%; background:#eee; border:none; border-radius:6px; cursor:pointer;">Cancelar</button>
             </div>
         </div>
     </section>
 
-    <section id="sec-meus-pedidos" class="page-container hidden fade-in">
-        <h2 class="page-title">Meus Pedidos</h2>
-        <div id="grid-meus-pedidos" class="products-grid" style="margin-top:20px;"></div>
+    <section id="sec-detalhes" class="container hidden fade-in">
+        <div class="content-box split-layout">
+            <div class="left-col" style="display:flex; justify-content:center; align-items:center; background:#f9f9f9; border-radius:8px;">
+                <div id="det-img-container"></div>
+            </div>
+            <div class="left-col">
+                <span style="background:#eee; padding:5px 10px; font-size:12px; font-weight:bold; border-radius:4px;">NOVO</span>
+                <h1 id="det-titulo" style="font-size:32px; margin:15px 0;">Titulo</h1>
+                <div id="det-valor" style="font-size:42px; font-weight:800; color:var(--primary);">R$ 0,00</div>
+                <p style="margin-bottom:30px;">À vista no PIX com <strong>15% OFF</strong>.</p>
+                <p id="det-desc" style="background:#f4f4f4; padding:15px; border-radius:6px; font-size:14px; margin-bottom:30px;"></p>
+                
+                <button id="btn-add-cart-detail" class="btn-full" style="height:60px; font-size:18px;">
+                    <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+                </button>
+                <button onclick="router('loja')" style="margin-top:15px; background:none; border:none; color:#555; cursor:pointer; text-decoration:underline; width:100%;">Voltar para Loja</button>
+            </div>
+        </div>
     </section>
 
     <script src="/static/js/script.js"></script>
