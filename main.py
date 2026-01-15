@@ -35,8 +35,8 @@ app.add_middleware(
 
 # Servindo ficheiros estáticos e templates da raiz
 # Certifique-se de que as pastas /static e /templates estão na raiz
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 # =========================================================
 # ROTAS DE PÁGINAS (FRONTEND - JINJA2)
