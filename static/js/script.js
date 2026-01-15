@@ -1,5 +1,5 @@
 /** RYZER SCRIPT v3 - PRO DESIGN **/
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = '';
 
 // --- ROTAS ---
 function router(tela) {
