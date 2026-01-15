@@ -1,207 +1,155 @@
 /**
- * RYZER ENTERPRISE - SCRIPT DE INTEGRAÇÃO FULL
- * Conecta o visual Pro ao Backend FastAPI.
+ * RYZER ENTERPRISE - JAVASCRIPT CORE
+ * Integração completa com FastAPI e UX avançada.
  */
 
-// URL do Backend (Deixe vazio para usar a mesma origem em produção)
-const API_BASE = ''; 
+// API CONFIG (Deixe vazio se estiver na mesma origem)
+const API_BASE = 'http://127.0.0.1:8000'; 
 
-// --- UTILS & HELPERS ---
-
-// Gera imagens baseadas no nome do produto (já que o backend não tem upload de imagem)
+// --- 1. IMAGENS INTELIGENTES (Mockup de Qualidade) ---
 function getImagemProduto(titulo) {
-    if (!titulo) return 'https://placehold.co/600x400/eee/ccc?text=No+Image';
+    if (!titulo) return 'https://placehold.co/600x600/eee/ccc?text=No+Image';
     const t = titulo.toLowerCase();
     
     // Hardware
-    if(t.includes('rtx') || t.includes('gtx') || t.includes('placa de vídeo')) return 'https://m.media-amazon.com/images/I/71tDu30-mZL._AC_SL1500_.jpg';
-    if(t.includes('ryzen') || t.includes('intel') || t.includes('processador')) return 'https://m.media-amazon.com/images/I/51f2hkWjTlL._AC_SL1000_.jpg';
-    if(t.includes('placa mãe') || t.includes('motherboard')) return 'https://m.media-amazon.com/images/I/81bc-5l-uwL._AC_SL1500_.jpg';
-    if(t.includes('ram') || t.includes('memória')) return 'https://m.media-amazon.com/images/I/61p3lA4N3uL._AC_SL1134_.jpg';
+    if(t.includes('rtx') || t.includes('gtx')) return 'https://m.media-amazon.com/images/I/71tDu30-mZL._AC_SL1500_.jpg'; // GPU
+    if(t.includes('ryzen') || t.includes('intel')) return 'https://m.media-amazon.com/images/I/51f2hkWjTlL._AC_SL1000_.jpg'; // CPU
+    if(t.includes('memória') || t.includes('ram')) return 'https://m.media-amazon.com/images/I/61p3lA4N3uL._AC_SL1134_.jpg'; // RAM
+    if(t.includes('ssd') || t.includes('nvme')) return 'https://m.media-amazon.com/images/I/71F9+Wc-kOL._AC_SL1500_.jpg'; // SSD
     
     // Periféricos
     if(t.includes('mouse')) return 'https://m.media-amazon.com/images/I/61mpMH5TzkL._AC_SL1500_.jpg';
     if(t.includes('teclado')) return 'https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg';
-    if(t.includes('headset') || t.includes('fone')) return 'https://m.media-amazon.com/images/I/61CGHv6kmWL._AC_SL1000_.jpg';
     if(t.includes('monitor')) return 'https://m.media-amazon.com/images/I/71sxlhYhKWL._AC_SL1500_.jpg';
-    
-    // Software
-    if(t.includes('curso') || t.includes('python') || t.includes('java')) return 'https://placehold.co/600x400/00bf63/ffffff?text=Curso+Dev';
-    if(t.includes('windows') || t.includes('office')) return 'https://placehold.co/600x400/0078d7/ffffff?text=Software';
+    if(t.includes('headset') || t.includes('fone')) return 'https://m.media-amazon.com/images/I/61CGHv6kmWL._AC_SL1000_.jpg';
 
-    // Fallback Genérico
-    return `https://placehold.co/600x400/f8f9fa/333333?text=${encodeURIComponent(titulo.substring(0,15))}`;
+    // Software/Cursos
+    if(t.includes('curso') || t.includes('python')) return 'https://placehold.co/600x600/00bf63/ffffff?text=Curso+Dev';
+    if(t.includes('windows') || t.includes('office')) return 'https://placehold.co/600x600/0078d7/ffffff?text=Software+Key';
+
+    return `https://placehold.co/600x600/f8f9fa/333333?text=${encodeURIComponent(titulo.substring(0,10))}`;
 }
 
-// Formata moeda (BRL)
-function formatCurrency(value) {
+// --- 2. HELPERS (Formatação e UI) ---
+function formatMoney(value) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-// Sistema de Notificações (Toasts)
 function toast(msg, type='success') {
-    const box = document.getElementById('toast-box');
+    const box = document.getElementById('toast-container');
     const div = document.createElement('div');
     div.className = `toast ${type}`;
     div.innerHTML = type === 'success' 
-        ? `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}` 
-        : `<i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> ${msg}`;
+        ? `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`
+        : `<i class="fas fa-exclamation-triangle" style="color:var(--secondary)"></i> ${msg}`;
     box.appendChild(div);
-    setTimeout(() => {
-        div.style.opacity = '0';
-        setTimeout(() => div.remove(), 300);
-    }, 3000);
+    setTimeout(() => div.remove(), 4000);
 }
 
-// --- ROTEADOR (SPA NAVIGATION) ---
+// --- 3. ROTEADOR (SPA) ---
 function router(tela) {
-    // 1. Esconde todas as seções
+    // Esconde tudo
     document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
     
-    // 2. Mostra a seção alvo
+    // Mostra alvo
     const target = document.getElementById(`sec-${tela}`);
-    if (target) target.classList.remove('hidden');
-    else console.error(`Tela ${tela} não encontrada`);
+    if (target) {
+        target.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-    // 3. Controle de Navbar e Auth
-    const userId = localStorage.getItem('usuario_id');
-    const navbar = document.getElementById('navbar');
+    // Controle Navbar e Footer
+    const uid = localStorage.getItem('usuario_id');
+    const nav = document.getElementById('navbar');
+    const footer = document.getElementById('footer');
 
-    // Scrola para o topo
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    if (userId) {
-        navbar.classList.remove('hidden');
+    if (uid) {
+        nav.classList.remove('hidden');
+        footer.classList.remove('hidden');
         updateCartBadge();
         
-        // Lazy Load dos dados
-        if (tela === 'loja') carregarLoja();
-        if (tela === 'carrinho') renderCarrinho();
-        if (tela === 'meus-pedidos') carregarMeusPedidos();
-        if (tela === 'dashboard') carregarDashboard();
+        // Carregamento Lazy
+        if(tela === 'loja') carregarLoja();
+        if(tela === 'carrinho') renderCarrinho();
+        if(tela === 'dashboard') carregarDashboard();
+        if(tela === 'meus-pedidos') carregarPedidos();
         
-        // Redireciona se tentar acessar login logado
-        if (tela === 'login' || tela === 'cadastro') router('loja');
+        // Redireciona se tentar logar
+        if(tela === 'login' || tela === 'cadastro') router('loja');
+        
+        // Nome no topo
+        document.getElementById('user-name-display').innerText = localStorage.getItem('usuario_nome') || 'Cliente';
     } else {
-        navbar.classList.add('hidden');
-        if (tela !== 'login' && tela !== 'cadastro') router('login');
+        nav.classList.add('hidden');
+        footer.classList.add('hidden');
+        if(tela !== 'login' && tela !== 'cadastro') router('login');
     }
 }
 
-// Inicialização
-window.onload = () => {
-    const uid = localStorage.getItem('usuario_id');
-    if (uid) router('loja');
-    else router('login');
-};
+window.onload = () => localStorage.getItem('usuario_id') ? router('loja') : router('login');
 
-function toggleMenu() {
-    // Implementar menu mobile se necessário (add class active)
-    alert("Menu Mobile em breve!");
-}
-
-// --- MÓDULO: AUTENTICAÇÃO ---
+// --- 4. AUTH ---
 async function fazerLogin() {
     const email = document.getElementById('login-email').value;
     const senha = document.getElementById('login-senha').value;
-    const btn = document.getElementById('btn-login');
-    const txt = document.getElementById('txt-login');
     const msg = document.getElementById('msg-login');
-
-    if (!email || !senha) return toast("Preencha todos os campos", "error");
-
-    // UI Loading
-    btn.disabled = true;
-    txt.innerText = "Verificando...";
-    msg.innerText = "";
+    msg.innerText = "Conectando...";
 
     try {
         const res = await fetch(`${API_BASE}/login/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, senha })
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, senha})
         });
-
         const data = await res.json();
 
         if (res.ok) {
             localStorage.setItem('usuario_id', data.usuario_id);
             localStorage.setItem('usuario_nome', data.nome);
-            toast(`Bem-vindo de volta, ${data.nome}!`);
+            toast(`Bem-vindo, ${data.nome}!`);
             router('loja');
         } else {
-            msg.innerText = data.detail || "E-mail ou senha incorretos.";
-            toast("Falha no login", "error");
+            msg.innerText = data.detail || "Login falhou.";
         }
-    } catch (e) {
-        msg.innerText = "Erro de conexão com o servidor.";
-        console.error(e);
-    } finally {
-        btn.disabled = false;
-        txt.innerText = "Entrar na Plataforma";
-    }
+    } catch (e) { msg.innerText = "Erro de conexão."; }
 }
 
 async function cadastrar() {
     const nome = document.getElementById('cad-nome').value;
     const email = document.getElementById('cad-email').value;
     const senha = document.getElementById('cad-senha').value;
-    const btn = document.getElementById('btn-cadastro');
-
-    if (!nome || !email || !senha) return toast("Preencha tudo", "error");
-
-    btn.disabled = true;
-    btn.innerText = "Criando...";
-
+    
     try {
         const res = await fetch(`${API_BASE}/usuarios/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, email, senha })
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nome, email, senha})
         });
-
-        if (res.ok) {
-            toast("Conta criada com sucesso! Faça login.");
-            router('login');
-        } else {
-            const err = await res.json();
-            toast(err.detail || "Erro ao criar conta", "error");
-        }
-    } catch (e) {
-        toast("Erro de conexão", "error");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Finalizar Cadastro";
-    }
+        if (res.ok) { toast("Conta criada!"); router('login'); }
+        else toast("Erro no cadastro", "error");
+    } catch (e) { toast("Erro de conexão", "error"); }
 }
 
 function logout() {
     localStorage.clear();
     router('login');
-    toast("Você saiu do sistema.", "info");
 }
 
-// --- MÓDULO: LOJA (VITRINE) ---
+// --- 5. LOJA ---
 let produtosCache = [];
 
 async function carregarLoja() {
     const grid = document.getElementById('grid-produtos');
-    grid.innerHTML = '<div class="loading-box">Carregando ofertas...</div>';
-
+    
     try {
         const res = await fetch(`${API_BASE}/projetos/`);
         const data = await res.json();
-        
-        // Filtra apenas produtos 'aberto'
         produtosCache = data.filter(p => p.status === 'aberto');
-        renderizarGrid(produtosCache);
+        renderGrid(produtosCache);
     } catch (e) {
-        grid.innerHTML = '<p class="text-center">Erro ao carregar produtos. Verifique sua conexão.</p>';
-        console.error(e);
+        grid.innerHTML = "<p>Erro ao carregar produtos.</p>";
     }
 }
 
-function renderizarGrid(lista) {
+function renderGrid(lista) {
     const grid = document.getElementById('grid-produtos');
     const termo = document.getElementById('campo-busca').value.toLowerCase();
     grid.innerHTML = "";
@@ -209,144 +157,120 @@ function renderizarGrid(lista) {
     const filtrados = lista.filter(p => p.titulo.toLowerCase().includes(termo));
 
     if (filtrados.length === 0) {
-        grid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
-                <i class="fas fa-search" style="font-size: 40px; color: #ddd; margin-bottom: 20px;"></i>
-                <p>Nenhum produto encontrado com "${termo}".</p>
-            </div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px;">Nenhum produto encontrado.</div>`;
         return;
     }
 
     filtrados.forEach(p => {
         const img = getImagemProduto(p.titulo);
-        const card = `
+        grid.innerHTML += `
             <div class="product-card fade-in">
-                <div class="prod-img-box" onclick="verDetalhes(${p.id})" style="cursor: pointer;">
-                    <img src="${img}" class="prod-img" alt="${p.titulo}">
+                <div class="prod-img-box" onclick="verDetalhes(${p.id})" style="cursor:pointer">
+                    <img src="${img}" class="prod-img">
                 </div>
                 <div class="prod-info">
                     <h3 title="${p.titulo}">${p.titulo}</h3>
-                    <div class="old-price">R$ ${(p.valor * 1.4).toFixed(2)}</div>
-                    <span class="prod-price">${formatCurrency(p.valor)}</span>
-                    <span class="pix-label">no PIX (15% off)</span>
+                    <span class="old-price">R$ ${(p.valor * 1.2).toFixed(2)}</span>
+                    <span class="prod-price">${formatMoney(p.valor)}</span>
+                    <span class="pix-label">à vista no PIX</span>
                 </div>
                 <button onclick="addCart(${p.id})" class="btn-cart">
-                    <i class="fas fa-cart-plus"></i> Comprar
+                    <i class="fas fa-shopping-cart"></i> COMPRAR
                 </button>
-            </div>
-        `;
-        grid.innerHTML += card;
+            </div>`;
     });
 }
 
-function buscarProduto() {
-    renderizarGrid(produtosCache);
-}
+function buscarProduto() { renderGrid(produtosCache); }
 
+// Filtro Fake (Front-end)
 function filtrarCategoria(cat) {
-    // Simulação de filtro por categoria (já que o backend não tem campo categoria real)
-    // Em produção, você adicionaria ?categoria=hardware na URL da API
-    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    // Aqui resetamos para mostrar todos porque não temos o campo no DB ainda
-    // Mas a UI reage
-    renderizarGrid(produtosCache);
+    // Como o backend não tem campo categoria, simulamos resetando a busca
+    document.querySelectorAll('.cat-link').forEach(b => b.classList.remove('active'));
+    // Lógica real viria aqui se tivesse campo no DB
+    renderGrid(produtosCache); 
 }
 
-// --- MÓDULO: DETALHES DO PRODUTO ---
+// --- 6. DETALHES ---
 function verDetalhes(id) {
     const p = produtosCache.find(i => i.id === id);
     if (!p) return;
 
-    document.getElementById('det-img-container').innerHTML = `<img src="${getImagemProduto(p.titulo)}" style="width: 100%; border-radius: 12px;">`;
+    document.getElementById('det-img-container').innerHTML = `<img src="${getImagemProduto(p.titulo)}" style="max-width:100%; max-height:100%;">`;
     document.getElementById('det-titulo').innerText = p.titulo;
-    document.getElementById('det-valor').innerText = formatCurrency(p.valor);
-    document.getElementById('det-desc').innerText = `Vendedor ID: #${p.vendedor_id}\n\nProduto verificado pela equipe Ryzer. Garantia de procedência e entrega imediata após a confirmação do pagamento via sistema seguro de Escrow.`;
+    document.getElementById('det-valor').innerText = formatMoney(p.valor);
+    document.getElementById('det-desc').innerText = `Produto ID: #${p.id}\nVendedor: Ryzer Partner #${p.vendedor_id}\n\nEste produto é digital ou físico com garantia de entrega via Ryzer Escrow. O pagamento fica retido até você confirmar o recebimento.`;
+    
+    // Breadcrumbs
+    document.getElementById('bread-nome').innerText = p.titulo.substring(0, 20) + '...';
 
-    // Atualiza o botão de adicionar ao carrinho
+    // Botão Adicionar
     const btn = document.getElementById('btn-add-cart-detail');
-    // Remove listeners antigos clonando o nó
     const newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
-    
-    newBtn.onclick = () => {
-        addCart(p.id);
-        toast("Produto adicionado ao carrinho!");
-    };
+    newBtn.onclick = () => { addCart(p.id); toast("Adicionado ao carrinho!"); };
 
     router('detalhes');
 }
 
-// --- MÓDULO: CARRINHO DE COMPRAS ---
+// --- 7. CARRINHO ---
 function addCart(id) {
     let cart = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
     if (!cart.includes(id)) {
         cart.push(id);
         localStorage.setItem('ryzer_cart', JSON.stringify(cart));
-        toast("Adicionado ao carrinho");
+        updateCartBadge();
+        toast("Adicionado ao carrinho!");
     } else {
-        toast("Já está no carrinho", "warning");
+        toast("Item já está no carrinho", "error");
     }
-    updateCartBadge();
 }
 
 function updateCartBadge() {
     const count = (JSON.parse(localStorage.getItem('ryzer_cart')) || []).length;
-    const badge = document.getElementById('cart-badge');
-    if(badge) badge.innerText = count;
+    document.getElementById('cart-badge').innerText = count;
 }
 
 function renderCarrinho() {
     const container = document.getElementById('lista-carrinho');
-    const emptyMsg = document.getElementById('carrinho-vazio-msg');
-    const cartIds = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
-    
+    const cart = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
     container.innerHTML = "";
     let total = 0;
 
-    if (cartIds.length === 0) {
-        emptyMsg.classList.remove('hidden');
+    if (cart.length === 0) {
+        container.innerHTML = "<p class='text-center' style='padding:40px'>Seu carrinho está vazio.</p>";
         document.getElementById('cart-total').innerText = "R$ 0,00";
         document.getElementById('cart-subtotal').innerText = "R$ 0,00";
         return;
     }
-    emptyMsg.classList.add('hidden');
 
-    // Se o cache estiver vazio (reload na pagina de carrinho), busca dados
-    if (produtosCache.length === 0) {
-        carregarLoja().then(renderCarrinho);
-        return;
-    }
+    if (produtosCache.length === 0) { carregarLoja().then(renderCarrinho); return; }
 
-    cartIds.forEach((id, idx) => {
+    cart.forEach((id, idx) => {
         const p = produtosCache.find(i => i.id === id);
         if (p) {
             total += p.valor;
             const img = getImagemProduto(p.titulo);
-            
-            const itemHtml = `
+            container.innerHTML += `
                 <div class="cart-item fade-in">
-                    <img src="${img}" alt="${p.titulo}">
-                    <div style="flex: 1;">
-                        <h4 style="font-size: 16px; margin-bottom: 5px;">${p.titulo}</h4>
-                        <span style="font-size: 13px; color: #888;">Vendido por: Ryzer ID #${p.vendedor_id}</span>
+                    <img src="${img}">
+                    <div style="flex:1">
+                        <strong>${p.titulo}</strong><br>
+                        <small>Vendedor #${p.vendedor_id}</small>
                     </div>
                     <div class="text-right">
-                        <div style="font-weight: 800; color: var(--primary); font-size: 18px;">${formatCurrency(p.valor)}</div>
-                        <button onclick="removeCart(${idx})" style="background: none; border: none; color: #ff5555; font-size: 13px; text-decoration: underline; margin-top: 5px;">Remover</button>
+                        <div style="font-weight:bold; color:var(--primary)">${formatMoney(p.valor)}</div>
+                        <button onclick="remCart(${idx})" style="color:#ff5555; background:none; font-size:12px; margin-top:5px; text-decoration:underline;">Remover</button>
                     </div>
-                </div>
-            `;
-            container.innerHTML += itemHtml;
+                </div>`;
         }
     });
 
-    document.getElementById('cart-subtotal').innerText = formatCurrency(total);
-    document.getElementById('cart-total').innerText = formatCurrency(total);
+    document.getElementById('cart-total').innerText = formatMoney(total);
+    document.getElementById('cart-subtotal').innerText = formatMoney(total);
 }
 
-function removeCart(index) {
+function remCart(index) {
     let cart = JSON.parse(localStorage.getItem('ryzer_cart'));
     cart.splice(index, 1);
     localStorage.setItem('ryzer_cart', JSON.stringify(cart));
@@ -357,206 +281,145 @@ function removeCart(index) {
 async function finalizarCompra() {
     const cart = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
     if (cart.length === 0) return toast("Carrinho vazio!", "error");
-    
-    if (!confirm("Confirmar compra de " + cart.length + " itens?")) return;
+    if (!confirm("Confirmar compra?")) return;
 
-    let successCount = 0;
     let codes = [];
-
-    // Processa cada item (Simulando checkout em lote)
-    for (const id of cart) {
+    for (let id of cart) {
         try {
             const res = await fetch(`${API_BASE}/projetos/${id}/pagar`, { method: 'POST' });
             if (res.ok) {
                 const data = await res.json();
                 codes.push(data.codigo_verificacao);
-                successCount++;
             }
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    if (successCount > 0) {
-        alert(`✅ Compra realizada com sucesso!\n\nGuarde seus códigos de desbloqueio:\n${codes.join('\n')}\n\nEles estão disponíveis em 'Meus Pedidos'.`);
+    if (codes.length > 0) {
+        alert(`✅ Sucesso! Seus códigos de liberação:\n\n${codes.join('\n')}\n\nAcesse 'Meus Pedidos' para ver os produtos.`);
         localStorage.setItem('ryzer_cart', JSON.stringify([]));
         updateCartBadge();
         router('meus-pedidos');
     } else {
-        toast("Erro ao processar compra. Tente novamente.", "error");
+        toast("Erro ao processar. Tente novamente.", "error");
     }
 }
 
-// --- MÓDULO: MEUS PEDIDOS ---
-async function carregarMeusPedidos() {
-    const uid = localStorage.getItem('usuario_id');
-    const grid = document.getElementById('grid-meus-pedidos');
-    const emptyMsg = document.getElementById('msg-sem-pedidos');
-    
-    grid.innerHTML = '<div class="loading-skeleton"></div>';
-
-    try {
-        const res = await fetch(`${API_BASE}/cliente/${uid}/meus-cursos`);
-        const data = await res.json();
-        
-        grid.innerHTML = "";
-        
-        if (data.length === 0) {
-            emptyMsg.classList.remove('hidden');
-            return;
-        }
-        emptyMsg.classList.add('hidden');
-
-        data.forEach(p => {
-            const img = getImagemProduto(p.titulo);
-            grid.innerHTML += `
-                <div class="product-card fade-in" style="border-top: 4px solid var(--primary);">
-                    <div class="prod-img-box" style="height: 120px;">
-                        <img src="${img}" class="prod-img">
-                    </div>
-                    <div class="prod-info">
-                        <h3>${p.titulo}</h3>
-                        <span class="badge" style="background: var(--primary); color: white; position: static;">COMPRADO</span>
-                        
-                        <div style="margin-top: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px;">
-                            <strong style="font-size: 12px; color: var(--primary-dark); text-transform: uppercase;">Dados de Acesso:</strong>
-                            <p style="font-family: monospace; font-size: 14px; margin-top: 5px; word-break: break-all;">${p.conteudo_digital}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    } catch (e) {
-        console.error(e);
-        grid.innerHTML = "Erro ao carregar pedidos.";
-    }
-}
-
-// --- MÓDULO: DASHBOARD & VENDAS ---
+// --- 8. DASHBOARD ---
 async function carregarDashboard() {
     const uid = localStorage.getItem('usuario_id');
-    
+    document.getElementById('dash-user-name').innerText = localStorage.getItem('usuario_nome');
+
     try {
-        // 1. Saldo Total
-        const resTotal = await fetch(`${API_BASE}/vendedor/${uid}/total-vendas`);
-        const dataTotal = await resTotal.json();
-        const total = dataTotal.total_vendas_concluidas || 0;
-        document.getElementById('dash-total').innerText = formatCurrency(total);
+        const res = await fetch(`${API_BASE}/vendedor/${uid}/total-vendas`);
+        const data = await res.json();
+        document.getElementById('dash-total').innerText = formatMoney(data.total_vendas_concluidas || 0);
 
-        // 2. Histórico
-        const resProjs = await fetch(`${API_BASE}/projetos/`);
-        const todos = await resProjs.json();
-        const meus = todos.filter(p => p.vendedor_id == uid || p.cliente_id == uid);
+        const res2 = await fetch(`${API_BASE}/projetos/`);
+        const prods = await res2.json();
+        const meus = prods.filter(p => p.vendedor_id == uid || p.cliente_id == uid);
         
-        document.getElementById('dash-count').innerText = meus.length;
-        
-        const tbody = document.getElementById('lista-transacoes');
+        document.getElementById('dash-count').innerText = meus.filter(p => p.vendedor_id == uid).length;
+
+        const tbody = document.getElementById('lista-vendas-table');
         tbody.innerHTML = "";
-
-        if (meus.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhuma transação encontrada.</td></tr>';
-            return;
-        }
-
+        
         meus.forEach(p => {
             let acao = "-";
-            let statusClass = "badge"; // css class
-            let statusText = p.status;
-
-            if (p.status === 'pagamento_retido') {
-                statusClass = "badge pending"; // Laranja
-                statusText = "Aguardando Liberação";
-                
-                // Se sou o cliente, posso liberar
-                if (p.cliente_id == uid) {
-                    acao = `<button onclick="liberarPagamento(${p.id})" class="btn-cart" style="height: 30px; font-size: 12px; padding: 0 10px;">Liberar Pagamento</button>`;
-                }
-            } else if (p.status === 'finalizado') {
-                statusClass = "badge paid"; // Verde
-                statusText = "Concluído";
-                acao = '<i class="fas fa-check" style="color: var(--primary);"></i>';
+            let status = `<span style="color:#555">${p.status}</span>`;
+            
+            if(p.status === 'pagamento_retido') {
+                status = `<span style="color:#ff6500; font-weight:bold;">Pendente</span>`;
+                if(p.cliente_id == uid) acao = `<button onclick="liberar(${p.id})" style="padding:5px; background:var(--primary); color:white; border-radius:4px;">Liberar</button>`;
             }
-
-            const tipo = p.vendedor_id == uid ? '<span style="color:blue">Venda</span>' : '<span style="color:purple">Compra</span>';
+            if(p.status === 'finalizado') status = `<span style="color:green; font-weight:bold;">Pago</span>`;
 
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${p.titulo}</strong></td>
-                    <td>${tipo}</td>
-                    <td>${formatCurrency(p.valor)}</td>
-                    <td><span class="${statusClass}" style="position:static;">${statusText}</span></td>
+                    <td>${p.titulo}</td>
+                    <td>${formatMoney(p.valor)}</td>
+                    <td>${status}</td>
                     <td>${acao}</td>
-                </tr>
-            `;
+                </tr>`;
         });
-
-    } catch (e) {
-        console.error(e);
-    }
+    } catch(e) {}
 }
 
-async function liberarPagamento(id) {
-    const codigo = prompt("Digite o código de liberação recebido na compra:");
-    if (!codigo) return;
-
-    try {
-        const res = await fetch(`${API_BASE}/projetos/${id}/liberar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ codigo: codigo })
-        });
-
-        if (res.ok) {
-            toast("Pagamento liberado com sucesso!");
-            carregarDashboard();
-        } else {
-            const err = await res.json();
-            toast(err.detail || "Código inválido", "error");
-        }
-    } catch (e) {
-        toast("Erro de conexão", "error");
-    }
+async function liberar(id) {
+    const code = prompt("Código:");
+    if(!code) return;
+    const res = await fetch(`${API_BASE}/projetos/${id}/liberar`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({codigo: code})
+    });
+    if(res.ok) { toast("Liberado!"); carregarDashboard(); }
+    else toast("Código inválido", "error");
 }
 
-// --- MÓDULO: ANUNCIAR ---
 async function publicarAnuncio() {
     const titulo = document.getElementById('anun-titulo').value;
     const valor = document.getElementById('anun-valor').value;
-    const conteudo = document.getElementById('anun-conteudo').value;
+    const cont = document.getElementById('anun-conteudo').value;
     const uid = localStorage.getItem('usuario_id');
-    const btn = document.getElementById('btn-publicar');
 
-    if (!titulo || !valor || !conteudo) return toast("Preencha todos os campos", "error");
-
-    btn.disabled = true;
-    btn.innerHTML = "Publicando...";
+    if(!titulo || !valor || !cont) return toast("Preencha tudo", "error");
 
     try {
         const res = await fetch(`${API_BASE}/projetos/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                titulo: titulo,
-                valor: parseFloat(valor),
-                conteudo_digital: conteudo,
-                vendedor_id: parseInt(uid)
+                titulo, valor: parseFloat(valor), conteudo_digital: cont, vendedor_id: parseInt(uid)
             })
         });
+        if(res.ok) { toast("Publicado!"); router('dashboard'); }
+        else toast("Erro ao publicar", "error");
+    } catch(e) {}
+}
 
-        if (res.ok) {
-            toast("Anúncio publicado com sucesso!");
-            router('dashboard');
-        } else {
-            const err = await res.json();
-            // Lida com erro de validação do Pydantic (lista) ou string simples
-            let msg = err.detail;
-            if (Array.isArray(msg)) msg = msg[0].msg;
-            toast("Erro: " + msg, "error");
-        }
-    } catch (e) {
-        toast("Erro ao conectar", "error");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check"></i> Publicar Agora';
+function switchDashTab(tab) {
+    document.getElementById('tab-vendas').classList.add('hidden');
+    document.getElementById('tab-compras').classList.add('hidden');
+    document.getElementById(`tab-${tab}`).classList.remove('hidden');
+    
+    // Atualiza botões
+    document.querySelectorAll('.dash-menu-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if(tab === 'compras') {
+        // Renderiza grid de compras dentro do dashboard
+        const grid = document.getElementById('grid-meus-pedidos');
+        // Reusa a lógica de carregar pedidos...
+        carregarPedidos(); 
     }
+}
+
+async function carregarPedidos() {
+    const uid = localStorage.getItem('usuario_id');
+    const grid = document.getElementById('grid-meus-pedidos');
+    grid.innerHTML = "<p>Carregando...</p>";
+    
+    try {
+        const res = await fetch(`${API_BASE}/cliente/${uid}/meus-cursos`);
+        const data = await res.json();
+        grid.innerHTML = "";
+        
+        if(data.length === 0) {
+            grid.innerHTML = "<p>Sem compras.</p>";
+            return;
+        }
+
+        data.forEach(p => {
+            grid.innerHTML += `
+                <div class="product-card fade-in" style="border-top: 4px solid var(--primary);">
+                    <div class="prod-img-box" style="height:120px;">
+                        <img src="${getImagemProduto(p.titulo)}" class="prod-img">
+                    </div>
+                    <div class="prod-info">
+                        <h3>${p.titulo}</h3>
+                        <div style="background:#f0fdf4; padding:10px; border-radius:6px; margin-top:10px; font-size:13px; color:#166534; border:1px solid #bbf7d0;">
+                            <strong>Entregue:</strong><br>${p.conteudo_digital}
+                        </div>
+                    </div>
+                </div>`;
+        });
+    } catch(e) {}
 }
