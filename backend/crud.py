@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from . import models, schemas, security
+
+from . import models, schemas
+from . import security
 import random
 
 # =========================================================
@@ -125,3 +127,9 @@ def delete_projeto(db: Session, projeto_id: int):
         db.commit()
         return True
     return False
+
+def get_projetos_por_cliente(db: Session, cliente_id: int):
+    """
+    Filtra na tabela de Projetos todos os itens que possuem o cliente_id informado.
+    """
+    return db.query(models.Projeto).filter(models.Projeto.cliente_id == cliente_id).all()

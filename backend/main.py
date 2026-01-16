@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from typing import List, Optional
 
+from . import crud, database, models, schemas
+
 # IMPORTAÇÕES DIRETAS (Ajustadas para ficheiros dentro da pasta backend)
-from . import models, schemas, crud, security, database
+from . import security
 from .database import engine, Base, get_db
 
 # Definição do diretório base na raiz
@@ -115,6 +117,14 @@ def liberar_conteudo(projeto_id: int, dados: schemas.ValidarCodigo, db: Session 
 def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
     total = crud.contar_vendas_vendedor(db, vendedor_id=vendedor_id)
     return {"vendedor_id": vendedor_id, "total_vendas": total}
+
+@app.get("/usuarios/{usuario_id}/pedidos", response_model=List[schemas.Projeto], tags=["Usuários"])
+def listar_meus_pedidos(usuario_id: int, db: Session = Depends(get_db)):
+    """
+    Busca todos os projetos onde o usuário atual é o cliente (comprador).
+    """
+    pedidos = crud.get_projetos_por_cliente(db, cliente_id=usuario_id)
+    return pedidos
 
 @app.get("/health", tags=["Healthcheck"])
 def healthcheck():
