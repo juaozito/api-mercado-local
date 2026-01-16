@@ -9,6 +9,3 @@ __pycache__/
 
 # Banco de Dados Local (para não dar conflito com o do Render)
 *.db
-
-# Pasta antiga (se você não for mais usar)
-backend/
