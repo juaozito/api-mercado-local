@@ -471,36 +471,67 @@ function switchDashTab(tab) {
     if(tab === 'compras') carregarPedidos(); 
 }
 
-async function carregarPedidos() {
-    const uid = localStorage.getItem('usuario_id');
-    const grid = document.getElementById('grid-meus-pedidos');
-    grid.innerHTML = '<div class="skeleton-card"></div>';
-    
-    try {
-        const res = await fetch(`${API_BASE}/cliente/${uid}/meus-cursos`);
-        const data = await res.json();
-        grid.innerHTML = "";
-        
-        if (data.length === 0) { 
-            grid.innerHTML = "<p>Nenhuma compra realizada.</p>"; 
-            return; 
-        }
+async function carregarMeusPedidos() {
+    const usuarioId = localStorage.getItem('usuario_id'); // Pega o ID salvo no login
+    const token = localStorage.getItem('access_token');
 
-        data.forEach(p => {
-            const img = getImagemProduto(p.titulo);
-            grid.innerHTML += `
-                <div class="product-card fade-in" style="border-top: 4px solid var(--primary);">
-                    <div class="prod-img-box" style="height:120px;">
-                        <img src="${img}" class="prod-img">
-                    </div>
-                    <div class="prod-info">
-                        <h3>${p.titulo}</h3>
-                        <div style="background:#e6ffef; padding:10px; border-radius:6px; margin-top:10px; font-size:12px; color:#155724; border:1px solid #c3e6cb;">
-                            <strong style="display:block; margin-bottom:5px;">📦 ACESSO / CÓDIGO:</strong>
-                            <span style="font-family:monospace; user-select:all;">${p.conteudo_digital}</span>
-                        </div>
-                    </div>
-                </div>`;
+    if (!usuarioId) {
+        window.location.href = '/login';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/usuarios/${usuarioId}/pedidos`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
-    } catch (e) { Toast.fire({ icon: 'error', title: 'Erro ao carregar pedidos' }); }
+
+        if (response.ok) {
+            const pedidos = await response.json();
+            const container = document.getElementById('lista-pedidos');
+            container.innerHTML = '';
+
+            pedidos.forEach(pedido => {
+                // Aqui está o pulo do gato: mostrar o código se o status for retido
+                const infoCodigo = pedido.status === 'pagamento_retido' 
+                    ? `<p style="color: gold;">🔑 Código para liberar: <strong>${pedido.codigo_verificacao}</strong></p>` 
+                    : `<p style="color: green;">✅ Finalizado</p>`;
+
+                container.innerHTML += `
+                    <div class="card-pedido">
+                        <h3>${pedido.titulo}</h3>
+                        <p>Valor: R$ ${pedido.valor}</p>
+                        ${infoCodigo}
+                    </div>
+                `;
+            });
+        } else {
+            console.error("Erro ao carregar pedidos");
+        }
+    } catch (error) {
+        console.error("Erro de conexão:", error);
+    }
+}
+
+// Função para alimentar "Minhas Compras"
+async function carregarMinhasCompras() {
+    const usuarioId = localStorage.getItem('usuario_id');
+    const response = await fetch(`/usuarios/${usuarioId}/pedidos`); // Rota de cliente
+    const compras = await response.json();
+    
+    const tabelaCompras = document.querySelector("#tabela-compras-body"); // Use o ID correto do seu HTML
+    tabelaCompras.innerHTML = "";
+
+    compras.forEach(item => {
+        tabelaCompras.innerHTML += `
+            <tr>
+                <td>${item.titulo}</td>
+                <td>R$ ${item.valor.toFixed(2)}</td>
+                <td>${item.status}</td>
+                <td>${item.codigo_verificacao || '-'}</td> 
+            </tr>
+        `;
+    });
 }

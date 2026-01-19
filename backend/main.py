@@ -133,7 +133,7 @@ def ver_total_vendas(vendedor_id: int, db: Session = Depends(get_db)):
 
 @app.get("/usuarios/{usuario_id}/pedidos", response_model=List[schemas.Projeto], tags=["Usuários"])
 def listar_meus_pedidos(usuario_id: int, db: Session = Depends(get_db)):
-    # Puxo todos os itens que o usuário comprou (seja retido ou finalizado)
+    # Certifique-se de que está chamando a função que filtra por cliente_id
     pedidos = crud.get_projetos_por_cliente(db, cliente_id=usuario_id)
     return pedidos
 
