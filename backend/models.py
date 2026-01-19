@@ -5,54 +5,52 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 # =========================================================
-# BLOCO 1: DEFINIÇÃO DE STATUS (ENUM)
+# BLOCO 1: STATUS DO PROJETO (REGRAS DO ESCROW)
 # =========================================================
+
 class StatusProjeto(enum.Enum):
     """
-    Define os estados possíveis de um anúncio no sistema.
-    Usar Enum evita que textos errados sejam gravados no banco.
+    Aqui eu defino os estados do anúncio. É fundamental para garantir 
+    que o banco não aceite qualquer texto e que o fluxo de segurança seja seguido.
     """
-    ABERTO = "aberto"              # Anúncio criado, aguardando comprador
-    PAGAMENTO_RETIDO = "pagamento_retido"  # Dinheiro no Escrow, aguardando código
-    FINALIZADO = "finalizado"      # Venda concluída, conteúdo liberado
-    CANCELADO = "cancelado"        # Venda interrompida
+    ABERTO = "aberto"              # O anúncio está na vitrine, esperando interessado.
+    PAGAMENTO_RETIDO = "pagamento_retido"  # O comprador pagou, mas o dinheiro está travado comigo (Ryzer).
+    FINALIZADO = "finalizado"      # O código bateu, o vendedor recebeu e o conteúdo foi entregue.
+    CANCELADO = "cancelado"        # Deu algum problema e a transação foi desfeita.
 
 # =========================================================
-# BLOCO 2: MODELO DE USUÁRIO
+# BLOCO 2: TABELA DE USUÁRIOS
 # =========================================================
+
 class Usuario(Base):
     """
-    Tabela que armazena todos os usuários (Vendedores e Clientes).
+    Aqui eu guardo todo mundo: quem compra e quem vende.
+    Um mesmo usuário pode ser vendedor em um projeto e cliente em outro.
     """
     __tablename__ = "usuarios"
 
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    senha_hash = Column(String, nullable=False) # Senha já criptografada pelo security.py
+    
+    # IMPORTANTE: Nunca guardo senha pura, apenas o hash gerado no security.py
+    senha_hash = Column(String, nullable=False) 
 
-    # --- RELACIONAMENTOS (O "Pulo do Gato") ---
-    # Permite acessar todos os projetos ligados a este usuário de forma fácil:
-    # usuario.projetos_como_cliente -> Lista o que ele comprou
-    # usuario.projetos_como_vendedor -> Lista o que ele anunciou
-    projetos_como_cliente = relationship(
-        "Projeto", 
-        foreign_keys="[Projeto.cliente_id]", 
-        back_populates="cliente"
-    )
-    projetos_como_vendedor = relationship(
-        "Projeto", 
-        foreign_keys="[Projeto.vendedor_id]", 
-        back_populates="vendedor"
-    )
+    # Crio conexões para facilitar a busca: 
+    # Posso perguntar ao usuário: "Quais projetos você está comprando?" ou "O que você está vendendo?"
+    projetos_como_cliente = relationship("Projeto", foreign_keys="[Projeto.cliente_id]", back_populates="cliente")
+    projetos_como_vendedor = relationship("Projeto", foreign_keys="[Projeto.vendedor_id]", back_populates="vendedor")
 
 # =========================================================
-# BLOCO 3: MODELO DE PROJETO (ANÚNCIOS / ESCROW)
+# BLOCO 3: TABELA DE PROJETOS (O CORAÇÃO DO RYZER)
 # =========================================================
+
+
+
 class Projeto(Base):
     """
-    Tabela principal onde ocorre a intermediação (Escrow).
-    Armazena o valor, o status do pagamento e o conteúdo travado.
+    Essa é a tabela principal. Ela controla desde o anúncio até a entrega final.
+    É aqui que o sistema de Escrow (dinheiro retido) acontece.
     """
     __tablename__ = "projetos"
 
@@ -60,25 +58,26 @@ class Projeto(Base):
     titulo = Column(String, index=True, nullable=False)
     valor = Column(Float, nullable=False)
     
-    # --- CHAVES ESTRANGEIRAS ---
-    # cliente_id é opcional (nullable=True) porque no anúncio ainda não há comprador.
+    # CHAVES ESTRANGEIRAS: Ligam o projeto aos donos dele
+    # cliente_id começa vazio (null) porque no início só temos o vendedor.
     cliente_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     vendedor_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     
-    # --- CAMPOS DE CONTROLE ---
+    # CONTROLE DE ESTADO
     status = Column(SQLEnum(StatusProjeto), default=StatusProjeto.ABERTO)
     data_criacao = Column(DateTime, default=datetime.now)
     
-    # Escrow: Valor que está 'congelado' no sistema
+    # SEGURANÇA E ENTREGA
+    # valor_no_escrow: Guarda o valor que está "congelado" durante a negociação.
     valor_no_escrow = Column(Float, default=0.0)
     
-    # Conteúdo Digital: O link ou texto que o comprador quer (Ex: link de curso)
-    conteudo_digital = Column(String, nullable=True)
+    # conteudo_digital: É o prêmio! O link ou texto que só será liberado no status FINALIZADO.
+    conteudo_digital = Column(String, nullable=True) 
     
-    # Código de Verificação: O segredo de 6 dígitos para liberar a venda
-    codigo_verificacao = Column(String(6), nullable=True)
+    # codigo_verificacao: O segredo de 6 dígitos que gera a confiança entre as partes.
+    codigo_verificacao = Column(String(6), nullable=True) 
 
-    # --- CONEXÕES REVERSAS ---
-    # Permite que, ao carregar um projeto, você acesse projeto.vendedor.nome
+    # RELACIONAMENTOS INVERSOS: 
+    # Permitem que, ao carregar um Projeto, eu já tenha os dados do Vendedor e do Cliente na mão.
     cliente = relationship("Usuario", foreign_keys=[cliente_id], back_populates="projetos_como_cliente")
     vendedor = relationship("Usuario", foreign_keys=[vendedor_id], back_populates="projetos_como_vendedor")

@@ -4,51 +4,49 @@ from datetime import datetime, timedelta
 from .config import settings
 
 # =========================================================
-# BLOCO 1: SEGURANÇA DE SENHAS (BCRYPT)
+# BLOCO 1: PROTEÇÃO DE SENHAS (BCRYPT)
 # =========================================================
 
 def gerar_senha_hash(senha: str) -> str:
-    """
-    Transforma uma senha de texto puro em um hash seguro.
-    O hash inclui um 'salt' aleatório para evitar ataques de força bruta.
-    """
+    # Eu nunca gravo a senha real do usuário no banco. 
+    # Transformo ela nesse "hash" com um 'salt' (um tempero aleatório)
+    # pra que, mesmo se alguém roubar o banco, não consiga ler a senha original.
     senha_bytes = senha.encode('utf-8')
     salt = bcrypt.gensalt()
     hash_bytes = bcrypt.hashpw(senha_bytes, salt)
     return hash_bytes.decode('utf-8')
 
 def verificar_senha(senha_pura: str, senha_hash: str) -> bool:
-    """
-    Compara a senha digitada pelo usuário com o hash salvo no banco.
-    Retorna True se for compatível, False caso contrário.
-    """
+    # Quando o cara tenta logar, eu pego a senha que ele digitou e comparo
+    # com o hash que guardamos. Se bater, o acesso tá liberado!
     try:
         return bcrypt.checkpw(
             senha_pura.encode('utf-8'), 
             senha_hash.encode('utf-8')
         )
     except Exception:
-        # Se o hash estiver malformado ou houver erro, nega o acesso
+        # Se der qualquer erro no hash, eu barro o acesso por segurança
         return False
 
 # =========================================================
-# BLOCO 2: AUTENTICAÇÃO VIA JWT (JSON WEB TOKEN)
+# BLOCO 2: O CRACHÁ DIGITAL (JWT)
 # =========================================================
 
+
+
 def criar_token_acesso(dados: dict) -> str:
-    """
-    Gera um token JWT para manter o usuário logado.
-    O token contém o ID do usuário e uma data de expiração.
-    """
+    # O cara logou? Eu dou um "crachá" (Token) pra ele.
+    # Esse crachá diz quem ele é e até que horas vale o acesso.
     dados_token = dados.copy()
     
-    # Define por quanto tempo o token será válido (configurado no config.py)
+    # Puxo lá do meu 'config.py' quanto tempo o cara pode ficar logado (24h)
     tempo_expiracao = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
-    # Adiciona a claim 'exp' (expiration) ao corpo do token
+    # Coloco a validade dentro do crachá (claim 'exp')
     dados_token.update({"exp": tempo_expiracao})
     
-    # Assina o token com a sua SECRET_KEY
+    # Eu assino esse crachá com a nossa SECRET_KEY. 
+    # Assim, só o nosso servidor consegue validar se esse crachá é verdadeiro.
     token_jwt = jwt.encode(
         dados_token, 
         settings.SECRET_KEY, 
