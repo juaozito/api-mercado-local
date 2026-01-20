@@ -9,9 +9,9 @@ O **Ryzer** é uma plataforma de marketplace local moderna, desenvolvida para co
 Este projeto foi criado para demonstrar a implementação de uma arquitetura de backend profissional, focando em:
 
 * **Segurança**: Autenticação robusta e proteção de dados.
-* 
+  
 * **Escalabilidade**: Uso de banco de dados relacional robusto e código assíncrono.
-* 
+
 * **Experiência do Usuário**: Interface limpa e documentação de API fácil de usar.
 
 ---
@@ -19,13 +19,13 @@ Este projeto foi criado para demonstrar a implementação de uma arquitetura de 
 ## 🛠️ Stack Tecnológica
 
 * **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Alta performance e tipagem rápida).
-* 
+  
 * **Banco de Dados:** PostgreSQL (Produção via Render) e SQLAlchemy (ORM).
-* 
+  
 * **Segurança:** Autenticação JWT (JSON Web Tokens) e Criptografia de senhas com Passlib.
-* 
+  
 * **Frontend:** Jinja2 Templates, HTML5 e CSS3.
-* 
+  
 * **Deploy:** [Render](https://render.com/).
 
 ---
@@ -33,20 +33,14 @@ Este projeto foi criado para demonstrar a implementação de uma arquitetura de 
 ## ✨ Funcionalidades Principais
 
 - [x] **Autenticação Segura**: Sistema de Login/Logout com tokens de acesso de longa duração.
-
-- [ ] 
+    
 - [x] **Gestão de Anúncios**: Criação, edição e visualização de produtos com categorias.
 
-- [ ] 
 - [x] **Sistema de Escrow**: Retenção de pagamento para segurança do comprador e vendedor.
 
-- [ ] 
 - [x] **Painel Administrativo**: Script especializado para criação de usuários root.
 
-- [ ] 
 - [x] **Documentação Automática**: Swagger UI disponível em `/docs`.
-
-- [ ] 
 
 ---
 
@@ -55,7 +49,7 @@ Este projeto foi criado para demonstrar a implementação de uma arquitetura de 
 ### 1. Pré-requisitos
 
 * Python 3.10 ou superior instalado.
-* 
+  
 * Git instalado.
 
 ### 2. Clonagem e Ambiente
