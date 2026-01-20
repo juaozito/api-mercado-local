@@ -8,9 +8,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # --- BLOCO 2: IMPORTAÇÕES DO NOSSO SISTEMA ---
 # Puxo a conexão do banco, as tabelas e a nossa lógica de criptografia.
-from database import SessionLocal, engine
-from models import Usuario, Base
-from security import gerar_senha_hash
+# No topo do criar_usuario.py
+from backend.database import SessionLocal, engine
+from backend.models import Usuario, Base
+from backend.security import gerar_senha_hash
 
 # --- BLOCO 3: A MÁGICA DA CRIAÇÃO ---
 def criar_usuario_inicial():

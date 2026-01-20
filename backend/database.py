@@ -1,16 +1,20 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from .config import settings
+from config import settings
+# No topo do database.py
+from backend.config import settings
 
 # Pego a URL lá das minhas configurações.
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
-# Crio o motor do banco. Esse 'check_same_thread' falso é pro SQLite 
-# não reclamar quando tiver muita gente acessando ao mesmo tempo.
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+
+# Se a URL começar com postgresql, não usamos o check_same_thread (que é só do SQLite)
+if "sqlite" in settings.DATABASE_URL:
+    engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(settings.DATABASE_URL)
+
 
 # Aqui eu preparo a "fábrica" de conexões. Toda rota vai pedir uma dessas.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
