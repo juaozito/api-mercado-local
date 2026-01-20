@@ -1,96 +1,43 @@
-# 🚀 Ryzer - API de Mercado Local
+# 🚀 RYZER — MARKETPLACE SOLUTIONS
 
-O **Ryzer** é uma plataforma de marketplace local moderna, desenvolvida para conectar compradores e vendedores de forma segura. A API gerencia desde o catálogo de produtos até o fluxo de pagamento protegido (Escrow), garantindo confiança nas transações da comunidade.
-
----
-
-## 🎯 Objetivo do Projeto
-
-Este projeto foi criado para demonstrar a implementação de uma arquitetura de backend profissional, focando em:
-
-* **Segurança**: Autenticação robusta e proteção de dados.
-  
-* **Escalabilidade**: Uso de banco de dados relacional robusto e código assíncrono.
-
-* **Experiência do Usuário**: Interface limpa e documentação de API fácil de usar.
+O **Ryzer** é uma plataforma de marketplace local moderna, desenvolvida para conectar compradores e vendedores de forma segura. A API gerencia desde o catálogo de produtos até o fluxo de pagamento protegido (Escrow), garantindo confiança total nas transações da comunidade.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## 🎯 PROPOSÍTIO DO PROJETO
 
-* **Framework:** [FastAPI](https://fastapi.tiangolo.com/) (Alta performance e tipagem rápida).
-  
-* **Banco de Dados:** PostgreSQL (Produção via Render) e SQLAlchemy (ORM).
-  
-* **Segurança:** Autenticação JWT (JSON Web Tokens) e Criptografia de senhas com Passlib.
-  
-* **Frontend:** Jinja2 Templates, HTML5 e CSS3.
-  
-* **Deploy:** [Render](https://render.com/).
+Este projeto foi desenvolvido como uma demonstração de arquitetura backend profissional, com foco em três pilares fundamentais: segurança avançada para proteção rigorosa de dados sensíveis; escalabilidade através de banco de dados relacional de alta performance e processamento assíncrono; e uma excelente experiência do usuário (UX) com interface limpa e documentação técnica de fácil consumo.
 
 ---
 
-## ✨ Funcionalidades Principais
+## 🛠️ STACK TECNOLÓGICA
 
-- [x] **Autenticação Segura**: Sistema de Login/Logout com tokens de acesso de longa duração.
-    
-- [x] **Gestão de Anúncios**: Criação, edição e visualização de produtos com categorias.
-
-- [x] **Sistema de Escrow**: Retenção de pagamento para segurança do comprador e vendedor.
-
-- [x] **Painel Administrativo**: Script especializado para criação de usuários root.
-
-- [x] **Documentação Automática**: Swagger UI disponível em `/docs`.
+Para o desenvolvimento, utilizamos o framework **FastAPI** pela sua alta performance e tipagem rápida. O armazenamento de dados é feito via **PostgreSQL** em ambiente de produção (Render) utilizando o **SQLAlchemy** como ORM. A camada de segurança conta com autenticação **JWT** (JSON Web Tokens) e criptografia de senhas com **Passlib**. O frontend é renderizado via **Jinja2 Templates** com HTML5 e CSS3, e todo o deploy é gerenciado pela plataforma **Render**.
 
 ---
 
-## 💻 Como Rodar este Projeto
+## ✨ FUNCIONALIDADES CHAVE
 
-### 1. Pré-requisitos
+A plataforma oferece autenticação segura com sistema de Login/Logout, gestão completa de anúncios para criação e edição de produtos por categorias, e um mecanismo de **Escrow** para retenção de pagamentos. Além disso, incluímos uma ferramenta administrativa para provisionamento de usuários root e documentação interativa via **Swagger UI** disponível na rota `/docs`.
 
-* Python 3.10 ou superior instalado.
-  
-* Git instalado.
+---
 
-### 2. Clonagem e Ambiente
+## 💻 GUIA DE INSTALAÇÃO E EXECUÇÃO
 
+Para rodar o projeto, é necessário ter o Python 3.10+ e o Git instalados. O primeiro passo é clonar o repositório com o comando `git clone https://github.com/seu-usuario/api-mercado-local.git` e acessar a pasta. Em seguida, crie e ative o ambiente virtual com `python -m venv venv` e o comando de ativação correspondente ao seu sistema, sendo `.\venv\Scripts\activate` no Windows ou `source venv/bin/activate` no Linux/Mac.
 
-# Clonar o repositório
+Após ativar o ambiente, instale as dependências com `pip install -r requirements.txt`. Lembre-se de configurar a variável `DATABASE_URL` no arquivo `backend/config.py` com sua string de conexão correta. Para finalizar, execute o script de criação do banco com `python -m backend.criar_usuario` e inicie o servidor com `uvicorn backend.main:app --reload`. A plataforma estará disponível em `http://127.0.0.1:8000`.
 
-git clone [https://github.com/seu-usuario/api-mercado-local.git](https://github.com/seu-usuario/api-mercado-local.git)
+---
 
-cd api-mercado-local
+## 👥 DESENVOLVEDORES
 
-# Criar e ativar o ambiente virtual
+Este projeto foi idealizado e desenvolvido por:
 
-python -m venv venv
+**João Lucas Rebouças**
 
-# Windows:
+**João Araújo Neto**
 
-.\venv\Scripts\activate
+---
 
-# Linux/Mac:
-
-source venv/bin/activate
-
-### 3. Instalação e Configuração
-
-# Instalar dependências
-
-pip install -r requirements.txt
-
-# Configurar Variáveis (backend/config.py)
-
-# DATABASE_URL = "postgresql://user:pass@host/dbname?sslmode=require"
-
-### 4. Inicialização do Banco e Servidor
-
-# Criar tabelas e usuário administrador inicial
-
-python -m backend.criar_usuario
-
-# Iniciar a aplicação
-
-uvicorn backend.main:app --reload
-
-
+*Ryzer API — Conectando negócios, garantindo segurança.*
