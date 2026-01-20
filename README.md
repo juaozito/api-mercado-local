@@ -30,6 +30,10 @@ Após ativar o ambiente, instale as dependências com `pip install -r requiremen
 
 ---
 
+## ADEMAIS
+
+Acesse o nosso site, onde estaremos trazendo atualizações sobre as implementações de tecnologias e funcionalidades do nosso projeto: https://api-mercado-local.onrender.com/
+
 ## 👥 DESENVOLVEDORES
 
 Este projeto foi idealizado e desenvolvido por:
