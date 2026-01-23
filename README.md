@@ -4,7 +4,7 @@ O **Ryzer** é uma plataforma de marketplace local moderna, desenvolvida para co
 
 ---
 
-## 🎯 PROPOSÍTIO DO PROJETO
+## 🎯 PROPOSÍTO DO PROJETO
 
 Este projeto foi desenvolvido como uma demonstração de arquitetura backend profissional, com foco em três pilares fundamentais: segurança avançada para proteção rigorosa de dados sensíveis; escalabilidade através de banco de dados relacional de alta performance e processamento assíncrono; e uma excelente experiência do usuário (UX) com interface limpa e documentação técnica de fácil consumo.
 
