@@ -6,5 +6,6 @@ pydantic-settings
 passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
+psycopg2-binary
 gunicorn
 jinja2

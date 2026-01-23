@@ -1,11 +1,8 @@
 from sqlalchemy.orm import Session
-from . import models, schemas, security
 import random
+from backend import models, schemas, security
 
-# =========================================================
-# PARTE DE USUÁRIOS
-# =========================================================
-
+# USUÁRIOS
 def get_usuario_by_email(db: Session, email: str):
     return db.query(models.Usuario).filter(models.Usuario.email == email).first()
 
@@ -24,10 +21,7 @@ def create_usuario(db: Session, usuario: schemas.UsuarioCreate):
     db.refresh(db_usuario)
     return db_usuario
 
-# =========================================================
-# PARTE DE ANÚNCIOS
-# =========================================================
-
+# PROJETOS / ANÚNCIOS
 def create_projeto(db: Session, projeto: schemas.ProjetoCreate):
     db_projeto = models.Projeto(
         titulo=projeto.titulo,
@@ -45,19 +39,12 @@ def create_projeto(db: Session, projeto: schemas.ProjetoCreate):
 def get_projetos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Projeto).offset(skip).limit(limit).all()
 
-def get_projeto(db: Session, projeto_id: int):
-    return db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
-
-# =========================================================
-# O MOTOR DE ESCROW (DEPÓSITO E LIBERAÇÃO)
-# =========================================================
-
+# ESCROW
 def depositar_pagamento(db: Session, projeto_id: int, cliente_id: int):
     projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
     if projeto:
         projeto.status = models.StatusProjeto.PAGAMENTO_RETIDO
         projeto.cliente_id = cliente_id 
-        # Gera o código que aparecerá apenas para o CLIENTE
         projeto.codigo_verificacao = str(random.randint(100000, 999999))
         db.commit()
         db.refresh(projeto)
@@ -73,17 +60,9 @@ def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo: str):
         return projeto
     return None
 
-# =========================================================
-# FILTROS DE VISUALIZAÇÃO (O QUE RESOLVE SEU PROBLEMA)
-# =========================================================
-
-def get_compras_do_usuario(db: Session, usuario_id: int):
-    """Retorna tudo que o usuário COMPROU (onde ele é cliente)"""
-    return db.query(models.Projeto).filter(models.Projeto.cliente_id == usuario_id).all()
-
-def get_vendas_do_usuario(db: Session, usuario_id: int):
-    """Retorna tudo que o usuário ANUNCIOU (onde ele é vendedor)"""
-    return db.query(models.Projeto).filter(models.Projeto.vendedor_id == usuario_id).all()
+# FILTROS (Nomes corrigidos para o main.py)
+def get_projetos_por_cliente(db: Session, cliente_id: int):
+    return db.query(models.Projeto).filter(models.Projeto.cliente_id == cliente_id).all()
 
 def contar_vendas_vendedor(db: Session, vendedor_id: int):
     return db.query(models.Projeto).filter(
