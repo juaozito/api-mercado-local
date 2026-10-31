@@ -6,13 +6,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from backend import crud, database, models, schemas, security
 from backend.database import engine, Base, get_db
 
 # --- CONFIGURAÇÃO DE CAMINHOS ABSOLUTOS ---
-# Isso garante que o sistema ache as pastas static e templates na raiz
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 app = FastAPI(title="Mercado Local Escrow")
@@ -25,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Monta os arquivos estáticos e templates usando o caminho completo
+# Montagem limpa das pastas front-end
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
@@ -33,15 +32,9 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # O FastAPI agora vai buscar exatamente em PROJETO/templates/index.html
     return templates.TemplateResponse("index.html", {"request": request})
 
-# ... (restante das suas rotas de API continuam iguais)
-
-# Verifica se pastas existem antes de montar
-if os.path.exists("static"):
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates") if os.path.exists("templates") else None
+# --- ROTAS DE API ---
 
 @app.post("/login/", tags=["Usuários"])
 def login(dados: schemas.UsuarioLogin, db: Session = Depends(get_db)):
@@ -66,10 +59,15 @@ def listar_anuncios(db: Session = Depends(get_db)):
     return crud.get_projetos(db)
 
 @app.post("/projetos/{projeto_id}/pagar/", tags=["Escrow / Vendas"])
-def pagar_projeto(projeto_id: int, cliente_id: Optional[int] = 1, db: Session = Depends(get_db)):
-    projeto = crud.depositar_pagamento(db, projeto_id=projeto_id, cliente_id=cliente_id)
+def pagar_projeto(
+    projeto_id: int, 
+    current_user: models.Usuario = Depends(security.get_current_user), 
+    db: Session = Depends(get_db)
+):
+    projeto = crud.depositar_pagamento(db, projeto_id=projeto_id, cliente_id=current_user.id)
     if not projeto:
-        raise HTTPException(status_code=404, detail="Projeto não encontrado.")
+        raise HTTPException(status_code=404, detail="Projeto não encontrado ou não está aberto.")
+    
     return {
         "status": "pagamento_retido", 
         "codigo_verificacao": projeto.codigo_verificacao,
