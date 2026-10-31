@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 import random
 from backend import models, schemas, security
 
@@ -41,8 +42,12 @@ def get_projetos(db: Session, skip: int = 0, limit: int = 100):
 
 # ESCROW
 def depositar_pagamento(db: Session, projeto_id: int, cliente_id: int):
-    projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
-    if projeto:
+    # ATUALIZAÇÃO ARQUITETURAL: Bloqueio do registro no PostgreSQL para evitar concorrência
+    stmt = select(models.Projeto).where(models.Projeto.id == projeto_id).with_for_update()
+    projeto = db.execute(stmt).scalar_one_or_none()
+    
+    # Validação rigorosa: só permite depósito se o status atual for estritamente ABERTO
+    if projeto and projeto.status == models.StatusProjeto.ABERTO:
         projeto.status = models.StatusProjeto.PAGAMENTO_RETIDO
         projeto.cliente_id = cliente_id 
         projeto.codigo_verificacao = str(random.randint(100000, 999999))
@@ -52,8 +57,12 @@ def depositar_pagamento(db: Session, projeto_id: int, cliente_id: int):
     return None
 
 def validar_entrega_e_liberar(db: Session, projeto_id: int, codigo: str):
-    projeto = db.query(models.Projeto).filter(models.Projeto.id == projeto_id).first()
-    if projeto and projeto.codigo_verificacao == codigo:
+    # ATUALIZAÇÃO ARQUITETURAL: Lock transacional para validação segura
+    stmt = select(models.Projeto).where(models.Projeto.id == projeto_id).with_for_update()
+    projeto = db.execute(stmt).scalar_one_or_none()
+    
+    # Valida se o código corresponde e se o status permite finalização
+    if projeto and projeto.codigo_verificacao == codigo and projeto.status == models.StatusProjeto.PAGAMENTO_RETIDO:
         projeto.status = models.StatusProjeto.FINALIZADO
         db.commit()
         db.refresh(projeto)
