@@ -1,12 +1,10 @@
 /**
  * RYZER ENTERPRISE - JAVASCRIPT CORE v7.0
- * Integração: Backend Render + SweetAlert2 (Visual Pro)
+ * Integração: Backend Render + SweetAlert2 (Visual Pro) + JWT Auth
  */
 
-// SEU BACKEND ONLINE
 const API_BASE = 'https://api-mercado-local.onrender.com'; 
 
-// --- CONFIGURAÇÃO VISUAL (SweetAlert) ---
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -19,7 +17,6 @@ const Toast = Swal.mixin({
     }
 });
 
-// --- UTILS ---
 function formatMoney(value) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
@@ -38,10 +35,9 @@ function getImagemProduto(titulo) {
     if(t.includes('headset')) return 'https://m.media-amazon.com/images/I/61CGHv6kmWL._AC_SL1000_.jpg';
     if(t.includes('curso') || t.includes('python')) return 'https://placehold.co/600x600/00bf63/ffffff?text=Curso+Dev';
     
-    return `https://placehold.co/600x600/f8f9fa/333333?text=${encodeURIComponent(titulo.substring(0,10))}`;
+    return `https://placehold.co/600x600/18181b/e1e1e6?text=${encodeURIComponent(titulo.substring(0,10))}`;
 }
 
-// --- ROTEADOR ---
 function router(tela) {
     document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
     const target = document.getElementById(`sec-${tela}`);
@@ -85,14 +81,12 @@ function toggleMenu() {
     });
 }
 
-// --- AUTH ---
 async function fazerLogin() {
     const email = document.getElementById('login-email').value;
     const senha = document.getElementById('login-senha').value;
 
     if (!email || !senha) return Toast.fire({ icon: 'warning', title: 'Preencha todos os campos' });
 
-    // Loading bonito
     Swal.fire({
         title: 'Conectando...',
         didOpen: () => { Swal.showLoading() }
@@ -108,7 +102,9 @@ async function fazerLogin() {
         if (res.ok) {
             localStorage.setItem('usuario_id', data.usuario_id);
             localStorage.setItem('usuario_nome', data.nome);
-            Swal.close(); // Fecha loading
+            // ARQUITETURA DE SEGURANÇA: Persistir o token JWT
+            localStorage.setItem('access_token', data.access_token); 
+            Swal.close();
             
             Toast.fire({ icon: 'success', title: `Bem-vindo, ${data.nome}!` });
             router('loja');
@@ -171,7 +167,6 @@ function logout() {
     });
 }
 
-// --- LOJA ---
 let produtosCache = [];
 
 async function carregarLoja() {
@@ -196,7 +191,7 @@ function renderGrid(lista) {
     const filtrados = lista.filter(p => p.titulo.toLowerCase().includes(termo));
 
     if (filtrados.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;">Nenhum produto encontrado.</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:var(--text-muted);">Nenhum produto encontrado.</div>`;
         return;
     }
 
@@ -213,7 +208,7 @@ function renderGrid(lista) {
                     <span class="prod-price">${formatMoney(p.valor)}</span>
                     <span class="payment-info">à vista no PIX</span>
                 </div>
-                <button onclick="addCart(${p.id})" class="btn-cart">
+                <button onclick="addCart(${p.id})" class="btn-cart btn-buy-large">
                     <i class="fas fa-cart-plus"></i> COMPRAR
                 </button>
             </div>`;
@@ -226,7 +221,6 @@ function filtrarCategoria(cat) {
     renderGrid(produtosCache); 
 }
 
-// --- DETALHES ---
 function verDetalhes(id) {
     const p = produtosCache.find(i => i.id === id);
     if (!p) return;
@@ -244,7 +238,6 @@ function verDetalhes(id) {
     router('detalhes');
 }
 
-// --- CARRINHO ---
 function addCart(id) {
     let cart = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
     if (!cart.includes(id)) {
@@ -269,7 +262,7 @@ function renderCarrinho() {
     let total = 0;
 
     if (cartIds.length === 0) {
-        container.innerHTML = "<p style='text-align:center; padding:40px; color:#888'>Seu carrinho está vazio.</p>";
+        container.innerHTML = "<p style='text-align:center; padding:40px; color:var(--text-muted)'>O teu carrinho está vazio.</p>";
         document.getElementById('cart-total').innerText = "R$ 0,00";
         document.getElementById('cart-subtotal').innerText = "R$ 0,00";
         return;
@@ -287,11 +280,11 @@ function renderCarrinho() {
                     <img src="${img}">
                     <div style="flex:1">
                         <strong>${p.titulo}</strong><br>
-                        <small>Vendedor #${p.vendedor_id}</small>
+                        <small style="color:var(--text-muted)">Vendedor #${p.vendedor_id}</small>
                     </div>
                     <div class="text-right">
                         <div style="color:var(--primary); font-weight:bold;">${formatMoney(p.valor)}</div>
-                        <button onclick="removeCart(${idx})" style="color:#ff3b30; font-size:12px; margin-top:5px; text-decoration:underline;">Remover</button>
+                        <button onclick="removeCart(${idx})" style="color:#ff3b30; font-size:12px; margin-top:5px; text-decoration:underline; background:none; border:none; cursor:pointer;">Remover</button>
                     </div>
                 </div>`;
         }
@@ -313,25 +306,34 @@ async function finalizarCompra() {
     const cart = JSON.parse(localStorage.getItem('ryzer_cart')) || [];
     if (cart.length === 0) return Toast.fire({ icon: 'warning', title: 'Carrinho vazio' });
     
-    // CONFIRMAÇÃO BONITA
     const result = await Swal.fire({
         title: 'Confirmar Compra?',
-        text: `Você está comprando ${cart.length} itens.`,
+        text: `Estás a comprar ${cart.length} itens.`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#00bf63',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, comprar agora!'
+        confirmButtonText: 'Sim, comprar agora!',
+        background: '#202024',
+        color: '#e1e1e6'
     });
 
     if (!result.isConfirmed) return;
 
-    Swal.fire({ title: 'Processando...', didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: 'Processando...', didOpen: () => Swal.showLoading(), background: '#202024', color: '#e1e1e6' });
 
     let codes = [];
+    // ARQUITETURA DE SEGURANÇA: Resgatar token
+    const token = localStorage.getItem('access_token'); 
+
     for (const id of cart) {
         try {
-            const res = await fetch(`${API_BASE}/projetos/${id}/pagar`, { method: 'POST' });
+            const res = await fetch(`${API_BASE}/projetos/${id}/pagar/`, { 
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Injeção do token JWT no cabeçalho
+                }
+            });
             if (res.ok) {
                 const data = await res.json();
                 codes.push(data.codigo_verificacao);
@@ -346,21 +348,24 @@ async function finalizarCompra() {
         Swal.fire({
             icon: 'success',
             title: 'Compra Realizada!',
-            html: `Seus códigos de acesso:<br><b>${codes.join('<br>')}</b><br><br>Eles foram salvos em "Meus Pedidos".`,
-            confirmButtonColor: '#00bf63'
+            html: `Os teus códigos de acesso:<br><b style="color:var(--primary)">${codes.join('<br>')}</b><br><br>Eles foram salvos em "Meus Pedidos".`,
+            confirmButtonColor: '#00bf63',
+            background: '#202024',
+            color: '#e1e1e6'
         }).then(() => router('meus-pedidos'));
     } else {
-        Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível finalizar a compra.' });
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível finalizar a compra. Sessão expirada?', background: '#202024', color: '#e1e1e6' });
     }
 }
 
-// --- DASHBOARD ---
 async function carregarDashboard() {
     const uid = localStorage.getItem('usuario_id');
     try {
         const resTotal = await fetch(`${API_BASE}/vendedor/${uid}/total-vendas`);
-        const dataTotal = await resTotal.json();
-        document.getElementById('dash-total').innerText = formatMoney(dataTotal.total_vendas_concluidas || 0);
+        if(resTotal.ok) {
+            const dataTotal = await resTotal.json();
+            document.getElementById('dash-total').innerText = formatMoney(dataTotal.total_vendas_concluidas || 0);
+        }
 
         const resProjs = await fetch(`${API_BASE}/projetos/`);
         const todos = await resProjs.json();
@@ -372,7 +377,7 @@ async function carregarDashboard() {
         tbody.innerHTML = "";
 
         if (meus.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhuma transação.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:var(--text-muted)">Nenhuma transação.</td></tr>';
             return;
         }
 
@@ -381,18 +386,18 @@ async function carregarDashboard() {
             let statusBadge = `<span class="status-badge status-info">${p.status}</span>`;
 
             if (p.status === 'pagamento_retido') {
-                statusBadge = `<span class="status-badge status-pending">Pendente</span>`;
+                statusBadge = `<span class="status-badge status-pending" style="color:#ffc107">Pendente</span>`;
                 if (p.cliente_id == uid) {
-                    acao = `<button onclick="liberarPagamento(${p.id})" style="color:#007bff; font-weight:bold;">Liberar Pagamento</button>`;
+                    acao = `<button onclick="liberarPagamento(${p.id})" style="color:var(--primary); font-weight:bold; background:none; border:none; cursor:pointer;">Liberar Pagamento</button>`;
                 }
             } else if (p.status === 'finalizado') {
-                statusBadge = `<span class="status-badge status-success">Concluído</span>`;
+                statusBadge = `<span class="status-badge status-success" style="color:var(--primary)">Concluído</span>`;
             }
 
             tbody.innerHTML += `
                 <tr>
                     <td>${p.titulo}</td>
-                    <td>${formatMoney(p.valor)}</td>
+                    <td style="font-weight:bold; color:var(--primary)">${formatMoney(p.valor)}</td>
                     <td>${statusBadge}</td>
                     <td>${acao}</td>
                 </tr>`;
@@ -401,14 +406,15 @@ async function carregarDashboard() {
 }
 
 async function liberarPagamento(id) {
-    // INPUT BONITO PARA O CÓDIGO
     const { value: codigo } = await Swal.fire({
         title: 'Liberar Pagamento',
         input: 'text',
-        inputLabel: 'Digite o código recebido do vendedor/sistema',
+        inputLabel: 'Digita o código recebido do vendedor/sistema',
         inputPlaceholder: 'Código aqui...',
         showCancelButton: true,
-        confirmButtonColor: '#00bf63'
+        confirmButtonColor: '#00bf63',
+        background: '#202024',
+        color: '#e1e1e6'
     });
 
     if (!codigo) return;
@@ -419,12 +425,12 @@ async function liberarPagamento(id) {
             body: JSON.stringify({ codigo: codigo })
         });
         if (res.ok) { 
-            Swal.fire('Sucesso!', 'Pagamento liberado ao vendedor.', 'success'); 
+            Swal.fire({title: 'Sucesso!', text: 'Pagamento liberado ao vendedor.', icon: 'success', background: '#202024', color: '#e1e1e6'}); 
             carregarDashboard(); 
         } else { 
-            Swal.fire('Erro', 'Código inválido.', 'error'); 
+            Swal.fire({title: 'Erro', text: 'Código inválido.', icon: 'error', background: '#202024', color: '#e1e1e6'}); 
         }
-    } catch (e) { Swal.fire('Erro', 'Falha na conexão.', 'error'); }
+    } catch (e) { Swal.fire({title: 'Erro', text: 'Falha na conexão.', icon: 'error', background: '#202024', color: '#e1e1e6'}); }
 }
 
 async function publicarAnuncio() {
@@ -433,7 +439,7 @@ async function publicarAnuncio() {
     const conteudo = document.getElementById('anun-conteudo').value;
     const uid = localStorage.getItem('usuario_id');
 
-    if (!titulo || !valor || !conteudo) return Toast.fire({ icon: 'warning', title: 'Preencha tudo!' });
+    if (!titulo || !valor || !conteudo) return Toast.fire({ icon: 'warning', title: 'Preenche tudo!' });
 
     Swal.showLoading();
 
@@ -451,13 +457,15 @@ async function publicarAnuncio() {
             Swal.fire({
                 icon: 'success',
                 title: 'Anúncio Publicado!',
-                confirmButtonColor: '#00bf63'
+                confirmButtonColor: '#00bf63',
+                background: '#202024',
+                color: '#e1e1e6'
             }).then(() => router('dashboard'));
         } else { 
             const err = await res.json();
-            Swal.fire('Erro', err.detail || 'Falha ao publicar', 'error'); 
+            Swal.fire({title: 'Erro', text: err.detail || 'Falha ao publicar', icon: 'error', background: '#202024', color: '#e1e1e6'}); 
         }
-    } catch (e) { Swal.fire('Erro', 'Conexão falhou', 'error'); }
+    } catch (e) { Swal.fire({title: 'Erro', text: 'Conexão falhou', icon: 'error', background: '#202024', color: '#e1e1e6'}); }
 }
 
 function switchDashTab(tab) {
@@ -468,11 +476,11 @@ function switchDashTab(tab) {
     document.querySelectorAll('.dash-menu-btn').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
 
-    if(tab === 'compras') carregarPedidos(); 
+    if(tab === 'compras') carregarMinhasCompras(); 
 }
 
 async function carregarMeusPedidos() {
-    const usuarioId = localStorage.getItem('usuario_id'); // Pega o ID salvo no login
+    const usuarioId = localStorage.getItem('usuario_id');
     const token = localStorage.getItem('access_token');
 
     if (!usuarioId) {
@@ -481,7 +489,7 @@ async function carregarMeusPedidos() {
     }
 
     try {
-        const response = await fetch(`/usuarios/${usuarioId}/pedidos`, {
+        const response = await fetch(`${API_BASE}/usuarios/${usuarioId}/pedidos`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -490,48 +498,36 @@ async function carregarMeusPedidos() {
 
         if (response.ok) {
             const pedidos = await response.json();
-            const container = document.getElementById('lista-pedidos');
+            const container = document.getElementById('grid-meus-pedidos');
+            if(!container) return;
             container.innerHTML = '';
 
+            if (pedidos.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:var(--text-muted);">Ainda não efetuaste compras.</div>';
+                return;
+            }
+
             pedidos.forEach(pedido => {
-                // Aqui está o pulo do gato: mostrar o código se o status for retido
                 const infoCodigo = pedido.status === 'pagamento_retido' 
-                    ? `<p style="color: gold;">🔑 Código para liberar: <strong>${pedido.codigo_verificacao}</strong></p>` 
-                    : `<p style="color: green;">✅ Finalizado</p>`;
+                    ? `<p style="color: #ffc107; font-size: 13px; margin-top: 10px;">🔑 Código Escrow: <strong style="font-size:16px">${pedido.codigo_verificacao}</strong></p>` 
+                    : `<p style="color: var(--primary); font-size: 13px; margin-top: 10px;">✅ Transação Finalizada</p>`;
 
                 container.innerHTML += `
-                    <div class="card-pedido">
-                        <h3>${pedido.titulo}</h3>
-                        <p>Valor: R$ ${pedido.valor}</p>
-                        ${infoCodigo}
+                    <div class="product-card fade-in">
+                        <div class="prod-info">
+                            <h3>${pedido.titulo}</h3>
+                            <span class="prod-price" style="font-size:20px">${formatMoney(pedido.valor)}</span>
+                            ${infoCodigo}
+                        </div>
                     </div>
                 `;
             });
-        } else {
-            console.error("Erro ao carregar pedidos");
         }
     } catch (error) {
         console.error("Erro de conexão:", error);
     }
 }
 
-// Função para alimentar "Minhas Compras"
 async function carregarMinhasCompras() {
-    const usuarioId = localStorage.getItem('usuario_id');
-    const response = await fetch(`/usuarios/${usuarioId}/pedidos`); // Rota de cliente
-    const compras = await response.json();
-    
-    const tabelaCompras = document.querySelector("#tabela-compras-body"); // Use o ID correto do seu HTML
-    tabelaCompras.innerHTML = "";
-
-    compras.forEach(item => {
-        tabelaCompras.innerHTML += `
-            <tr>
-                <td>${item.titulo}</td>
-                <td>R$ ${item.valor.toFixed(2)}</td>
-                <td>${item.status}</td>
-                <td>${item.codigo_verificacao || '-'}</td> 
-            </tr>
-        `;
-    });
+    carregarMeusPedidos(); 
 }
