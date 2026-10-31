@@ -19,7 +19,8 @@
 
     <div id="toast-container"></div>
 
-    <nav id="navbar" class="hidden">
+    <!-- ARQUITETURA SEMÂNTICA: Substituí o <nav> global por um <header> com <nav> aninhado -->
+    <header id="navbar" class="hidden">
         <div class="topbar">
             <div class="container topbar-content">
                 <span><i class="fas fa-headset"></i> Atendimento: (11) 9999-9999</span>
@@ -29,16 +30,16 @@
 
         <div class="main-header">
             <div class="container header-content">
-                <button class="mobile-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+                <button class="mobile-btn" aria-label="Abrir menu" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
 
-                <a href="#" class="logo" onclick="router('loja')">
+                <a href="#" class="logo" onclick="router('loja')" aria-label="Ir para a página inicial da Ryzer">
                     <i class="fas fa-bolt logo-icon"></i>
                     <span class="logo-text">RYZER</span>
                 </a>
 
                 <div class="search-wrapper">
-                    <input type="text" id="campo-busca" placeholder="Busque por hardware, cursos, periféricos..." onkeyup="if(event.key === 'Enter') buscarProduto()">
-                    <button onclick="buscarProduto()"><i class="fas fa-search"></i></button>
+                    <input type="search" id="campo-busca" placeholder="Busque por hardware, cursos, periféricos..." onkeyup="if(event.key === 'Enter') buscarProduto()" aria-label="Campo de busca">
+                    <button onclick="buscarProduto()" aria-label="Buscar"><i class="fas fa-search"></i></button>
                 </div>
 
                 <div class="user-actions">
@@ -63,307 +64,315 @@
                         <span id="cart-badge" class="badge">0</span>
                     </div>
                     
-                    <div class="action-item" onclick="logout()" title="Sair">
+                    <div class="action-item" onclick="logout()" title="Sair" aria-label="Sair da conta">
                         <i class="fas fa-sign-out-alt" style="color: #ff5555;"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="category-bar">
-            <div class="container category-content">
-                <button class="cat-link active" onclick="router('loja')"><i class="fas fa-home"></i> Início</button>
-                <button class="cat-link" onclick="filtrarCategoria('hardware')">Hardware</button>
-                <button class="cat-link" onclick="filtrarCategoria('perifericos')">Periféricos</button>
-                <button class="cat-link" onclick="filtrarCategoria('computadores')">Computadores</button>
-                <button class="cat-link" onclick="filtrarCategoria('software')">Cursos & Soft</button>
-                <button class="cat-link highlight" onclick="router('anunciar')">QUERO VENDER</button>
-            </div>
-        </div>
-    </nav>
+        <nav class="category-bar" aria-label="Navegação principal">
+            <ul class="container category-content" style="padding: 0; margin: 0; display: flex; list-style: none;">
+                <li><button class="cat-link active" onclick="router('loja')"><i class="fas fa-home"></i> Início</button></li>
+                <li><button class="cat-link" onclick="filtrarCategoria('hardware')">Hardware</button></li>
+                <li><button class="cat-link" onclick="filtrarCategoria('perifericos')">Periféricos</button></li>
+                <li><button class="cat-link" onclick="filtrarCategoria('computadores')">Computadores</button></li>
+                <li><button class="cat-link" onclick="filtrarCategoria('software')">Cursos & Soft</button></li>
+                <li style="margin-left: auto;"><button class="cat-link highlight" onclick="router('anunciar')">QUERO VENDER</button></li>
+            </ul>
+        </nav>
+    </header>
 
-    <section id="sec-login" class="auth-wrapper fade-in">
-        <div class="auth-card">
-            <div class="auth-header">
-                <i class="fas fa-bolt"></i>
-                <h2>Acesse sua conta</h2>
-                <p>Aproveite as melhores ofertas tech.</p>
-            </div>
-            
-            <form onsubmit="event.preventDefault(); fazerLogin();">
-                <div class="input-group">
-                    <label>E-MAIL</label>
-                    <input type="email" id="login-email" placeholder="seu@email.com" required>
-                </div>
-                <div class="input-group">
-                    <label>SENHA</label>
-                    <input type="password" id="login-senha" placeholder="Sua senha segura" required>
-                </div>
+    <!-- ARQUITETURA SEMÂNTICA: Todo o conteúdo dinâmico das sections agora vive dentro da tag <main> -->
+    <main>
+        <section id="sec-login" class="auth-wrapper fade-in">
+            <div class="auth-card">
+                <header class="auth-header">
+                    <i class="fas fa-bolt"></i>
+                    <h2>Acesse sua conta</h2>
+                    <p>Aproveite as melhores ofertas tech.</p>
+                </header>
                 
-                <button type="submit" class="btn-auth">ENTRAR</button>
-            </form>
-
-            <div class="auth-footer">
-                <p>Novo na Ryzer? <a onclick="router('cadastro')">Crie sua conta</a></p>
-                <span id="msg-login" class="error-msg"></span>
-            </div>
-        </div>
-    </section>
-
-    <section id="sec-cadastro" class="auth-wrapper hidden fade-in">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h2>Crie seu ID Ryzer</h2>
-                <p>Comece a comprar e vender hoje.</p>
-            </div>
-            
-            <form onsubmit="event.preventDefault(); cadastrar();">
-                <div class="input-group">
-                    <label>NOME COMPLETO</label>
-                    <input type="text" id="cad-nome" placeholder="Seu nome" required>
-                </div>
-                <div class="input-group">
-                    <label>E-MAIL</label>
-                    <input type="email" id="cad-email" placeholder="seu@email.com" required>
-                </div>
-                <div class="input-group">
-                    <label>SENHA</label>
-                    <input type="password" id="cad-senha" placeholder="Crie uma senha" required>
-                </div>
-                
-                <button type="submit" class="btn-auth">CADASTRAR</button>
-            </form>
-
-            <div class="auth-footer">
-                <p>Já tem conta? <a onclick="router('login')">Fazer Login</a></p>
-            </div>
-        </div>
-    </section>
-
-    <section id="sec-loja" class="page-container hidden fade-in">
-        
-        <div class="hero-banner">
-            <div class="hero-content">
-                <div class="tag-promo">RYZER WEEK 🔥</div>
-                <h1>O UPGRADE QUE<br>VOCÊ MERECE</h1>
-                <p>Placas de vídeo, processadores e setups completos com até <strong>60% OFF</strong>.</p>
-                <div class="timer">
-                    <i class="far fa-clock"></i> Oferta encerra em: <strong>04:23:12</strong>
-                </div>
-                <button class="btn-hero" onclick="document.getElementById('grid-produtos').scrollIntoView()">VER OFERTAS</button>
-            </div>
-            <img src="https://m.media-amazon.com/images/I/71tDu30-mZL._AC_SL1500_.jpg" class="hero-img-floating" alt="GPU">
-        </div>
-
-        <div class="section-header">
-            <h2><i class="fas fa-fire" style="color:#ff6500"></i> Ofertas em Destaque</h2>
-            <div class="filters">
-                <span>Ordenar por:</span>
-                <select onchange="ordenarProdutos(this.value)">
-                    <option value="relevancia">Relevância</option>
-                    <option value="menor_preco">Menor Preço</option>
-                    <option value="maior_preco">Maior Preço</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="grid-produtos" class="product-grid">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    </section>
-
-    <section id="sec-detalhes" class="page-container hidden fade-in">
-        <div class="breadcrumbs">
-            <span onclick="router('loja')">Loja</span> > <span id="bread-cat">Hardware</span> > <span id="bread-nome">Produto</span>
-        </div>
-
-        <div class="details-container">
-            <div class="det-gallery">
-                <div class="main-img-box" id="det-img-container">
+                <form onsubmit="event.preventDefault(); fazerLogin();">
+                    <div class="input-group">
+                        <label for="login-email">E-MAIL</label>
+                        <input type="email" id="login-email" placeholder="seu@email.com" required autocomplete="email">
                     </div>
-            </div>
-
-            <div class="det-info">
-                <h1 id="det-titulo">Título do Produto</h1>
-                <div class="rating">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                    <span>(42 avaliações)</span>
-                </div>
-                
-                <div class="price-box">
-                    <span class="old-price">De: R$ ---</span>
-                    <div class="current-price" id="det-valor">R$ 0,00</div>
-                    <p class="payment-info">à vista no PIX com <strong>15% OFF</strong></p>
-                </div>
-
-                <div class="action-box">
-                    <button class="btn-buy-large" id="btn-add-cart-detail">
-                        <i class="fas fa-shopping-cart"></i> COMPRAR AGORA
-                    </button>
-                </div>
-
-                <div class="shipping-calc">
-                    <i class="fas fa-truck"></i>
-                    <div>
-                        <strong>Frete e Prazo:</strong>
-                        <p>Entrega Digital ou Física (Consulte o vendedor)</p>
+                    <div class="input-group">
+                        <label for="login-senha">SENHA</label>
+                        <input type="password" id="login-senha" placeholder="Sua senha segura" required autocomplete="current-password">
                     </div>
-                </div>
+                    
+                    <button type="submit" class="btn-auth">ENTRAR</button>
+                </form>
 
-                <div class="desc-box">
-                    <h3>Descrição do Produto</h3>
-                    <p id="det-desc">Carregando...</p>
-                </div>
+                <footer class="auth-footer">
+                    <p>Novo na Ryzer? <a onclick="router('cadastro')">Crie sua conta</a></p>
+                    <span id="msg-login" class="error-msg"></span>
+                </footer>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="sec-carrinho" class="page-container hidden fade-in">
-        <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Meu Carrinho</h2>
-        
-        <div class="cart-layout">
-            <div class="cart-items-container" id="lista-carrinho">
-                </div>
-
-            <div class="cart-summary">
-                <h3>Resumo do Pedido</h3>
-                <div class="summary-row">
-                    <span>Subtotal</span>
-                    <span id="cart-subtotal">R$ 0,00</span>
-                </div>
-                <div class="summary-row">
-                    <span>Frete</span>
-                    <span class="free">Grátis</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total à vista</span>
-                    <span id="cart-total">R$ 0,00</span>
-                </div>
-                <div class="summary-installments">
-                    ou até 12x no cartão
-                </div>
+        <section id="sec-cadastro" class="auth-wrapper hidden fade-in">
+            <div class="auth-card">
+                <header class="auth-header">
+                    <h2>Crie seu ID Ryzer</h2>
+                    <p>Comece a comprar e vender hoje.</p>
+                </header>
                 
-                <button onclick="finalizarCompra()" class="btn-checkout">FINALIZAR COMPRA</button>
-                <button onclick="router('loja')" class="btn-continue">Continuar Comprando</button>
-            </div>
-        </div>
-    </section>
+                <form onsubmit="event.preventDefault(); cadastrar();">
+                    <div class="input-group">
+                        <label for="cad-nome">NOME COMPLETO</label>
+                        <input type="text" id="cad-nome" placeholder="Seu nome" required autocomplete="name">
+                    </div>
+                    <div class="input-group">
+                        <label for="cad-email">E-MAIL</label>
+                        <input type="email" id="cad-email" placeholder="seu@email.com" required autocomplete="email">
+                    </div>
+                    <div class="input-group">
+                        <label for="cad-senha">SENHA</label>
+                        <input type="password" id="cad-senha" placeholder="Crie uma senha" required autocomplete="new-password">
+                    </div>
+                    
+                    <button type="submit" class="btn-auth">CADASTRAR</button>
+                </form>
 
-    <section id="sec-dashboard" class="page-container hidden fade-in">
-        <h2 class="section-title">Painel de Controle</h2>
-        
-        <div class="dashboard-grid">
-            <div class="dash-sidebar">
-                <div class="user-profile">
-                    <div class="avatar"><i class="fas fa-user"></i></div>
-                    <strong id="dash-user-name">Usuário</strong>
+                <footer class="auth-footer">
+                    <p>Já tem conta? <a onclick="router('login')">Fazer Login</a></p>
+                </footer>
+            </div>
+        </section>
+
+        <section id="sec-loja" class="page-container hidden fade-in">
+            <!-- ARQUITETURA SEMÂNTICA: O banner passa a ser um <article> -->
+            <article class="hero-banner">
+                <div class="hero-content">
+                    <div class="tag-promo">RYZER WEEK 🔥</div>
+                    <h1>O UPGRADE QUE<br>VOCÊ MERECE</h1>
+                    <p>Placas de vídeo, processadores e setups completos com até <strong>60% OFF</strong>.</p>
+                    <div class="timer">
+                        <i class="far fa-clock"></i> Oferta encerra em: <strong>04:23:12</strong>
+                    </div>
+                    <button class="btn-hero" onclick="document.getElementById('grid-produtos').scrollIntoView()">VER OFERTAS</button>
                 </div>
-                <button onclick="switchDashTab('vendas')" class="dash-menu-btn active"><i class="fas fa-chart-line"></i> Minhas Vendas</button>
-                <button onclick="switchDashTab('compras')" class="dash-menu-btn"><i class="fas fa-shopping-bag"></i> Minhas Compras</button>
-                <button onclick="router('anunciar')" class="dash-menu-btn highlight"><i class="fas fa-plus"></i> Novo Anúncio</button>
-            </div>
+                <img src="https://m.media-amazon.com/images/I/71tDu30-mZL._AC_SL1500_.jpg" class="hero-img-floating" alt="Placa de Vídeo RTX">
+            </article>
 
-            <div class="dash-content">
-                <div id="tab-vendas">
-                    <div class="kpi-cards">
-                        <div class="kpi-card">
-                            <span>Saldo Total</span>
-                            <h3 id="dash-total" style="color:var(--primary)">R$ 0,00</h3>
+            <header class="section-header">
+                <h2><i class="fas fa-fire" style="color:#ff6500"></i> Ofertas em Destaque</h2>
+                <div class="filters">
+                    <label for="ordenar-produtos">Ordenar por:</label>
+                    <select id="ordenar-produtos" onchange="ordenarProdutos(this.value)">
+                        <option value="relevancia">Relevância</option>
+                        <option value="menor_preco">Menor Preço</option>
+                        <option value="maior_preco">Maior Preço</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="grid-produtos" class="product-grid">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </section>
+
+        <section id="sec-detalhes" class="page-container hidden fade-in">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                <span onclick="router('loja')">Loja</span> > <span id="bread-cat">Hardware</span> > <span id="bread-nome">Produto</span>
+            </nav>
+
+            <article class="details-container">
+                <figure class="det-gallery">
+                    <div class="main-img-box" id="det-img-container">
                         </div>
-                        <div class="kpi-card">
-                            <span>Itens Vendidos</span>
-                            <h3 id="dash-count">0</h3>
+                </figure>
+
+                <div class="det-info">
+                    <h1 id="det-titulo">Título do Produto</h1>
+                    <div class="rating">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        <span>(42 avaliações)</span>
+                    </div>
+                    
+                    <div class="price-box">
+                        <span class="old-price">De: R$ ---</span>
+                        <div class="current-price" id="det-valor">R$ 0,00</div>
+                        <p class="payment-info">à vista no PIX com <strong>15% OFF</strong></p>
+                    </div>
+
+                    <div class="action-box">
+                        <button class="btn-buy-large" id="btn-add-cart-detail">
+                            <i class="fas fa-shopping-cart"></i> COMPRAR AGORA
+                        </button>
+                    </div>
+
+                    <div class="shipping-calc">
+                        <i class="fas fa-truck"></i>
+                        <div>
+                            <strong>Frete e Prazo:</strong>
+                            <p>Entrega Digital ou Física (Consulte o vendedor)</p>
                         </div>
                     </div>
-                    <h3>Histórico de Vendas</h3>
-                    <div class="table-responsive">
-                        <table class="ryzer-table">
-                            <thead><tr><th>Produto</th><th>Valor</th><th>Status</th><th>Ação</th></tr></thead>
-                            <tbody id="lista-vendas-table"></tbody>
-                        </table>
+
+                    <div class="desc-box">
+                        <h3>Descrição do Produto</h3>
+                        <p id="det-desc">Carregando...</p>
                     </div>
                 </div>
+            </article>
+        </section>
 
-                <div id="tab-compras" class="hidden">
-                    <h3>Meus Pedidos</h3>
-                    <div id="grid-meus-pedidos" class="product-grid"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="sec-anunciar" class="page-container hidden fade-in">
-        <div class="form-container">
-            <div class="form-header">
-                <h2>Vender na Ryzer</h2>
-                <p>Anuncie hardware ou infoprodutos para milhares de pessoas.</p>
-            </div>
+        <section id="sec-carrinho" class="page-container hidden fade-in">
+            <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Meu Carrinho</h2>
             
-            <form onsubmit="event.preventDefault(); publicarAnuncio();">
-                <div class="form-group">
-                    <label>Título do Anúncio</label>
-                    <input id="anun-titulo" class="modern-input" placeholder="Ex: Monitor Gamer 144Hz LG" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Preço (R$)</label>
-                        <input id="anun-valor" type="number" step="0.01" class="modern-input" placeholder="0.00" required>
+            <div class="cart-layout">
+                <div class="cart-items-container" id="lista-carrinho">
                     </div>
-                    <div class="form-group">
-                        <label>Categoria</label>
-                        <select id="anun-cat" class="modern-input">
-                            <option value="hardware">Hardware</option>
-                            <option value="perifericos">Periféricos</option>
-                            <option value="computadores">Computadores</option>
-                            <option value="software">Software / Curso</option>
-                        </select>
+
+                <aside class="cart-summary">
+                    <h3>Resumo do Pedido</h3>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frete</span>
+                        <span class="free">Grátis</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total à vista</span>
+                        <span id="cart-total">R$ 0,00</span>
+                    </div>
+                    <div class="summary-installments">
+                        ou até 12x no cartão
+                    </div>
+                    
+                    <button onclick="finalizarCompra()" class="btn-checkout">FINALIZAR COMPRA</button>
+                    <button onclick="router('loja')" class="btn-continue">Continuar Comprando</button>
+                </aside>
+            </div>
+        </section>
+
+        <section id="sec-dashboard" class="page-container hidden fade-in">
+            <h2 class="section-title">Painel de Controle</h2>
+            
+            <div class="dashboard-grid">
+                <aside class="dash-sidebar">
+                    <div class="user-profile">
+                        <div class="avatar"><i class="fas fa-user"></i></div>
+                        <strong id="dash-user-name">Usuário</strong>
+                    </div>
+                    <nav aria-label="Menu do Dashboard">
+                        <button onclick="switchDashTab('vendas')" class="dash-menu-btn active"><i class="fas fa-chart-line"></i> Minhas Vendas</button>
+                        <button onclick="switchDashTab('compras')" class="dash-menu-btn"><i class="fas fa-shopping-bag"></i> Minhas Compras</button>
+                        <button onclick="router('anunciar')" class="dash-menu-btn highlight"><i class="fas fa-plus"></i> Novo Anúncio</button>
+                    </nav>
+                </aside>
+
+                <div class="dash-content">
+                    <div id="tab-vendas">
+                        <div class="kpi-cards">
+                            <article class="kpi-card">
+                                <span>Saldo Total</span>
+                                <h3 id="dash-total" style="color:var(--primary)">R$ 0,00</h3>
+                            </article>
+                            <article class="kpi-card">
+                                <span>Itens Vendidos</span>
+                                <h3 id="dash-count">0</h3>
+                            </article>
+                        </div>
+                        <h3>Histórico de Vendas</h3>
+                        <div class="table-responsive">
+                            <table class="ryzer-table">
+                                <thead><tr><th>Produto</th><th>Valor</th><th>Status</th><th>Ação</th></tr></thead>
+                                <tbody id="lista-vendas-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tab-compras" class="hidden">
+                        <h3>Meus Pedidos</h3>
+                        <div id="grid-meus-pedidos" class="product-grid"></div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="form-group">
-                    <label>Dados de Entrega (Segredo)</label>
-                    <textarea id="anun-conteudo" class="modern-input" rows="4" placeholder="Link do Drive, Código de Rastreio, Chave de Ativação..." required></textarea>
-                    <small><i class="fas fa-lock"></i> Dados criptografados. Liberados apenas após pagamento.</small>
-                </div>
+        <section id="sec-anunciar" class="page-container hidden fade-in">
+            <div class="form-container">
+                <header class="form-header">
+                    <h2>Vender na Ryzer</h2>
+                    <p>Anuncie hardware ou infoprodutos para milhares de pessoas.</p>
+                </header>
+                
+                <form onsubmit="event.preventDefault(); publicarAnuncio();">
+                    <div class="form-group">
+                        <label for="anun-titulo">Título do Anúncio</label>
+                        <input type="text" id="anun-titulo" class="modern-input" placeholder="Ex: Monitor Gamer 144Hz LG" required>
+                    </div>
 
-                <button type="submit" class="btn-submit">Publicar Agora</button>
-            </form>
-        </div>
-    </section>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="anun-valor">Preço (R$)</label>
+                            <input id="anun-valor" type="number" step="0.01" class="modern-input" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="anun-cat">Categoria</label>
+                            <select id="anun-cat" class="modern-input">
+                                <option value="hardware">Hardware</option>
+                                <option value="perifericos">Periféricos</option>
+                                <option value="computadores">Computadores</option>
+                                <option value="software">Software / Curso</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="anun-conteudo">Dados de Entrega (Segredo)</label>
+                        <textarea id="anun-conteudo" class="modern-input" rows="4" placeholder="Link do Drive, Código de Rastreio, Chave de Ativação..." required></textarea>
+                        <small><i class="fas fa-lock"></i> Dados criptografados. Liberados apenas após pagamento.</small>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Publicar Agora</button>
+                </form>
+            </div>
+        </section>
+    </main>
 
     <footer class="main-footer hidden" id="footer">
         <div class="container footer-content">
-            <div class="footer-col">
+            <section class="footer-col">
                 <h4>Institucional</h4>
                 <a href="#">Sobre a Ryzer</a>
                 <a href="#">Trabalhe Conosco</a>
                 <a href="#">Termos de Uso</a>
-            </div>
-            <div class="footer-col">
+            </section>
+            <section class="footer-col">
                 <h4>Ajuda</h4>
                 <a href="#">Central de Ajuda</a>
                 <a href="#">Trocas e Devoluções</a>
                 <a href="#">Status do Pedido</a>
-            </div>
-            <div class="footer-col">
+            </section>
+            <section class="footer-col">
                 <h4>Atendimento</h4>
-                <p>(11) 4002-8922</p>
-                <p>sac@ryzer.com.br</p>
+                <address style="font-style: normal;">
+                    <p>(11) 4002-8922</p>
+                    <p>sac@ryzer.com.br</p>
+                </address>
                 <div class="socials">
-                    <i class="fab fa-instagram"></i>
-                    <i class="fab fa-twitter"></i>
-                    <i class="fab fa-youtube"></i>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                 </div>
-            </div>
-            <div class="footer-col payment">
+            </section>
+            <section class="footer-col payment">
                 <h4>Pagamento</h4>
-                <i class="fab fa-cc-visa"></i>
-                <i class="fab fa-cc-mastercard"></i>
-                <i class="fas fa-barcode"></i> <i class="fas fa-qrcode"></i> </div>
+                <i class="fab fa-cc-visa" aria-label="Visa"></i>
+                <i class="fab fa-cc-mastercard" aria-label="Mastercard"></i>
+                <i class="fas fa-barcode" aria-label="Boleto"></i> <i class="fas fa-qrcode" aria-label="Pix"></i>
+            </section>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 Ryzer Tecnologia LTDA. Todos os direitos reservados.</p>
@@ -371,7 +380,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="/static/js/script.js"></script>
 </body>
 </html>
