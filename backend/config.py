@@ -4,8 +4,8 @@ class Settings:
     PROJECT_NAME: str = "Mercado Local"
     PROJECT_VERSION: str = "1.0.0"
     
-    # Conexão com Render (PostgreSQL)
-    DATABASE_URL: str = "postgresql://ryzer_user:uJgQqFVdgzqKRP3ByC3exdTOOOqyh7jj@dpg-d5no6rchg0os73djm7fg-a.oregon-postgres.render.com/ryzer?sslmode=require"
+    # Conexão alterada para base de dados local (SQLite)
+    DATABASE_URL: str = "sqlite:///./ryzer.db"
 
     SECRET_KEY: str = "sua_chave_secreta_muito_longa_e_aleatoria_aqui"
     ALGORITHM: str = "HS256"
